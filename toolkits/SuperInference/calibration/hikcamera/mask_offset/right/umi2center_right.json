@@ -1,0 +1,42 @@
+{
+  "analysis_info": {
+    "mask_path": "masks/umi/right_mask_360x270.png",
+    "timestamp": "2025-11-04 18:25:47",
+    "image_dimensions": [
+      270,
+      360
+    ]
+  },
+  "mask_center": {
+    "x": 193.72996952617243,
+    "y": 109.88986273293601
+  },
+  "image_center": {
+    "x": 180.0,
+    "y": 135.0
+  },
+  "distance": 28.618718642881607,
+  "offset": {
+    "x": 13.729969526172425,
+    "y": -25.11013726706399
+  },
+  "mask_properties": {
+    "mask_area": 37081,
+    "total_area": 97200,
+    "coverage_percentage": 38.14917695473251,
+    "bounding_box": {
+      "min_x": 71,
+      "min_y": 11,
+      "max_x": 317,
+      "max_y": 202,
+      "width": 247,
+      "height": 192,
+      "area": 47424
+    },
+    "circularity": 0.7549634643811003,
+    "image_dimensions": {
+      "width": 360,
+      "height": 270
+    }
+  }
+}

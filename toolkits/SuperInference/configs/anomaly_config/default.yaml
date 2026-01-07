@@ -1,0 +1,56 @@
+anomaly_detect:
+  # Anomaly Detection Configuration
+  # All detection thresholds and parameters for HDF5 episode data
+
+  # You should change the dataset_config and report_dir to the corresponding dataset config file and report directory
+
+  data:
+    # Path to dataset config file (from h5_to_lerobot_async converter)
+    dataset_config: "scripts/hdf5_converter_configs/config1108.yaml"
+
+  # Expected frequencies for each data type (Hz)
+  # Used to detect if data is being recorded at correct rates
+  expected_fps:
+    pose: [80, 120]    # ViveTracker typically runs at ~100Hz
+    image: [20, 30]    # Cameras typically at 25fps
+    grip: [40, 60]     # Rotary encoder at ~50Hz
+
+  # Tolerance for fps variation (0.2 = 20% tolerance)
+  fps_tolerance: 0.2
+
+  # Data length anomaly detection
+  # Minimum ratio of data length compared to other devices (0.5 = 50%)
+  min_length_ratio: 0.9
+
+  # Timestamp discontinuity detection
+  # Maximum gap in timestamps before considering it a discontinuity (seconds)
+  max_timestamp_gap: 0.06
+
+  # Image quality detection
+  # Minimum mean brightness (0-255) to consider image valid
+  min_brightness: 10
+  # Ratio of images to check (0.1 = check 10% of images for efficiency)
+  image_check_ratio: 0.1
+
+  # Zero/static data detection
+  # Threshold for detecting all-zero data (0.95 = 95% zeros)
+  zero_data_threshold: 0.95
+  # Maximum standard deviation to consider data as frozen at a constant value
+  # If std < this threshold, data is considered frozen (device stuck)
+  static_data_std_threshold: 1e-2
+
+  # Trajectory anomaly detection
+  # Maximum position jump between consecutive frames (meters)
+  max_position_jump: 0.015
+  # Maximum velocity (m/s)
+  max_velocity: 2.0
+  # Maximum quaternion value jump threshold (L2 norm difference)
+  max_quaternion_jump: 0.2
+
+  # Output configuration
+  output:
+    # Save detailed JSON report
+    save_report: true
+    # Report output directory
+    report_dir: "/home/junjiexu/SuperInference/logs/anomaly_reports"
+

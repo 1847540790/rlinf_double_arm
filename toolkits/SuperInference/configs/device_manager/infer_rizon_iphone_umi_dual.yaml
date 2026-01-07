@@ -1,0 +1,8 @@
+device_manager:
+  type: synchronized
+  master_device_id: 2  # Robot as master
+  params:
+    config_path: ${hydra:runtime.output_dir}/config_resolved.yaml
+    buffer_size: 100000
+
+

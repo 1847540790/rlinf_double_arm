@@ -1,0 +1,41 @@
+# Devices for Rizon dual-arm EEF inference (real robots + single cameras)
+
+devices:
+  - class: "IPhoneCameraDevice"
+    device_id: 0 # camera left
+    data_shape: [640, 480, 3]
+    fps: 30.0
+    data_dtype: "uint8"
+    buffer_size: 200
+    hardware_latency_ms: 100.0
+
+
+  - class: "RizonRobot"
+    device_id: 1
+    robot_sn: "Rizon4-00044"
+    data_shape: [22]
+    fps: 120.0
+    data_dtype: "float64"
+    buffer_size: 1000
+    hardware_latency_ms: 10.0
+    control_shape: [8]
+    control_dtype: "float64"
+    control_buffer_size: 100
+    control_type: "eef_abs"
+    manual_confirm: false
+    mirror_mode: false
+    using_tcp_pose: true
+    utilize_gripper: true
+    gripper_name: "GripperDahuanModbus"
+    tool_name: "GripperDahuanModbusiPhone"
+    tcp_umi_json_path: "/home/fangyuan/lt_ws/SuperInference/calibration/tcp_to_umi_transform.json"
+    delta_eef_motion_scaler:
+      trans: [2.0, 2.0, 1.8]
+      rot: 1.0
+    home:
+      joints_left:  null
+      joints_right: null
+    max_velocity: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    max_acceleration: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+
+

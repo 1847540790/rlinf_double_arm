@@ -1,0 +1,14 @@
+action_executor:
+  type: base_policy_runner
+  policy_shm_name: policy_actions
+  robot_control_shms:
+    - shm: RizonRobot_2_control
+      shape: [16]
+      dtype: float64
+  execution_fps: 10.0
+  chunk_length: ${policy.chunk_length}
+  chunk_manager: 
+    # type: base_manager
+    type: nodelay_manager
+    dt: 0.1
+      

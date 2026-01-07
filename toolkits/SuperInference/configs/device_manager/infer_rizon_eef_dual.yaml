@@ -1,0 +1,7 @@
+device_manager:
+  type: synchronized
+  master_device_id: 1  # Robot as master
+  params:
+    config_path: ${hydra:runtime.output_dir}/config_resolved.yaml
+
+

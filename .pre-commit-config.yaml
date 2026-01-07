@@ -1,0 +1,44 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+exclude: '^[\s\S]*?_pb2[\s\S]*?\.py$'
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-json
+    -   id: check-added-large-files
+        args: [--maxkb=3000]
+    -   id: pretty-format-json
+        args: [--no-sort-keys, --autofix, --indent=4]
+    -   id: requirements-txt-fixer
+
+-   repo: https://github.com/provinzkraut/unasyncd
+    rev: "v0.9.0"
+    hooks:
+    -   id: unasyncd
+        additional_dependencies: ["ruff"]
+
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.11.10"
+    hooks:
+    -   id: ruff-format
+        args: ["--diff"]
+    -   id: ruff-format
+
+-   repo: local
+    hooks:
+    -   id: clang-format-14
+        name: clang-format
+        description: Format files with ClangFormat.
+        entry: clang-format-14 -i --style=file
+        language: system
+        files: \.(c|cc|cxx|cpp|cu|h|hh|hpp|hxx|java|m|proto)$
+
+-   repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+    hooks:
+    -   id: cmake-format
+        args: [--tab-size=4, --in-place, --line-width=88, --max-pargs-hwrap=4, --max-subgroups-hwrap=2]

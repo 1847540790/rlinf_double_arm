@@ -1,0 +1,42 @@
+{
+  "analysis_info": {
+    "mask_path": "/home/noematrix/Desktop/yesen/1117/SuperInference/masks/robot/left_mask_270_360.png",
+    "timestamp": "2025-11-20 17:40:54",
+    "image_dimensions": [
+      360,
+      270
+    ]
+  },
+  "mask_center": {
+    "x": 122.30223449774739,
+    "y": 172.14095220846258
+  },
+  "image_center": {
+    "x": 135.0,
+    "y": 180.0
+  },
+  "distance": 14.933113571518353,
+  "offset": {
+    "x": -12.697765502252608,
+    "y": -7.859047791537421
+  },
+  "mask_properties": {
+    "mask_area": 44171,
+    "total_area": 97200,
+    "coverage_percentage": 45.44341563786008,
+    "bounding_box": {
+      "min_x": 0,
+      "min_y": 59,
+      "max_x": 247,
+      "max_y": 287,
+      "width": 248,
+      "height": 229,
+      "area": 56792
+    },
+    "circularity": 0.7855036911772539,
+    "image_dimensions": {
+      "width": 270,
+      "height": 360
+    }
+  }
+}

@@ -1,0 +1,19 @@
+# PolicyConnector YAML configuration with chunking support
+
+summary_shm: device_summary_data
+
+policy:
+  class: TinyMLPPolicy
+  params: {}
+  fps: 2.0
+  chunk_length: 100  # Generate 10 future actions
+  policy_shm_name: "policy_actions"  # SHM name for ActionExecutor
+  obs:
+    devices: [OpenCVCameraDevice_0, SimRobot_0, SimRobot_1]
+  controls:
+    - shm: SimRobot_0_control
+      shape: [7]
+      dtype: float64
+    - shm: SimRobot_1_control
+      shape: [7]
+      dtype: float64 zz

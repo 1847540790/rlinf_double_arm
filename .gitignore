@@ -1,0 +1,28 @@
+__pycache__
+.vscode
+*.log
+*.idx
+*.npy
+*.txt
+!requirements/**
+!docs/*
+*.DS_Store
+*.out
+build
+docs/build
+dist
+logs/*
+outputs/*
+*.so
+.venv
+uv.lock
+rlinf/envs/maniskill/assets
+model
+# Checkpoint files
+*.pt
+*.pkl
+*.pth
+*.ckpt
+
+# Training results
+examples/rlpd/results/

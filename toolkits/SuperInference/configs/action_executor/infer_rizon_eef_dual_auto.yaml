@@ -1,0 +1,21 @@
+action_executor:
+  type: base_policy_runner
+  policy_shm_name: policy_actions
+  robot_control_shms:
+    - shm: RizonRobot_1_control
+      shape: [16]
+      dtype: float64
+  execution_fps: 50.0
+  chunk_length: ${policy.chunk_length}
+  chunk_manager:
+    type: auto_action_manager
+    search_tolerance: 100  # Search tolerance around estimated start index
+    pos_weight: 0.4       # Weight for position distance in action matching
+    rot_weight: 0.1       # Weight for rotation distance in action matching
+    ee_weight: 0.01        # Weight for end-effector distance in action matching
+    # Note: execution_fps is automatically passed from action_executor config
+    # The manager will calculate dt = 1/execution_fps for elapsed step estimation
+    discount_factor: 0.98 # Discount factor for penalizing indices far from estimated_steps_elapsed
+                          # At estimated_steps_elapsed: discount=1.0
+                          # At ±1: discount=0.99, at ±2: discount=0.99^2, etc.
+                          # Set to 1.0 to disable discount (no penalty for distant indices)

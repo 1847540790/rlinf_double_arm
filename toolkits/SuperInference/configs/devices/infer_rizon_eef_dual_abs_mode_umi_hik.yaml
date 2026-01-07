@@ -1,0 +1,94 @@
+# Devices for Rizon dual-arm EEF absolute mode (UMI setup)
+
+devices:
+  - class: "HikCameraDevice"
+    device_id: ${camera.left_id} # left camera
+    data_shape: [360, 270, 3]
+    fps: 25.0
+    data_dtype: "uint8"
+    buffer_size: 200
+    hardware_latency_ms: 80.0
+    # Hikvision camera hardware parameters
+    pixel_format: "RGB8"  # Pixel format (must be set first)
+    frame_rate_enable: true  # Enable frame rate control
+    exposure_time: 5000.0  # Exposure time in microseconds
+    gain: 16.9807  # Gain in dB
+    gamma_enable: true  # Enable gamma correction
+    gamma: 0.68  # Gamma value
+    rotation_angle: 90  # Rotate frame clockwise (supports 0/90/180/270)
+
+
+  - class: "HikCameraDevice"
+    device_id: ${camera.right_id} # right camera
+    data_shape: [360, 270, 3]
+    fps: 25.0
+    data_dtype: "uint8"
+    buffer_size: 200
+    hardware_latency_ms: 80.0
+    # Hikvision camera hardware parameters
+    pixel_format: "RGB8"  # Pixel format (must be set first)
+    frame_rate_enable: true  # Enable frame rate control
+    exposure_time: 5000.0  # Exposure time in microseconds
+    gain: 16.9807  # Gain in dB
+    gamma_enable: true  # Enable gamma correction
+    gamma: 0.68  # Gamma value
+    rotation_angle: 90  # Rotate frame clockwise (supports 0/90/180/270)
+
+  - class: "RizonRobot"
+    device_id: 1
+    robot_sn: ["Rizon4-062717", "Rizon4R-062069"]
+    data_shape: [44]  # 14 left (7 pos + 7 vel) + 14 right (7 pos + 7 vel)
+    fps: 100.0
+    data_dtype: "float64"
+    buffer_size: 1000
+    hardware_latency_ms: 10.0
+    control_shape: [16]  # Dual EEF control: [left_x, left_y, left_z, left_qx, left_qy, left_qz, left_qw, right_x, right_y, right_z, right_qx, right_qy, right_qz, right_qw, left_gripper, right_gripper]
+    control_dtype: "float64"
+    control_buffer_size: 100
+    control_type: "eef_abs"  # Delta control relative to home poses
+    mirror_mode: false
+    utilize_gripper: true # Enable gripper control (requires control_shape: [16] for dual arm)
+    gripper_name: "Robotiq-2F-85"  # Name of the gripper (only used if utilize_gripper=true)
+    # Delta EEF motion scaling factors
+    #delta_eef_motion_scaler:
+      # trans: [2.0, 2.0, 1.8]  # Translation scaling factor
+      # rot: 1.0    # Rotation scaling factor
+    # airexo_type: "ver2" # Version of airexo ("ver1", "ver2", None)
+    home:
+      preset_index: ${robot.home}
+      presets:
+        - name: "rizon_dual_default"
+          description: "Dual-arm calibrated home pose default"
+          joints_left: [2.019, 1.316, 0.446, 2.295, 0.418, 2.697, 0.858]  # Right arm home joint angles [rad]
+          joints_right: [2.019, 1.316, 0.446, 2.295, 0.418, 2.697, 0.858]
+
+        - name: "rizon_dual_1"
+          description: "Legacy home pose 1"
+          joints_left: [1.088046908378601, 1.2829036712646484, 0.2113117128610611, 1.467348575592041, 1.6145037412643433, 1.2537493705749512, 0.2700965404510498]
+          joints_right: [1.088046908378601, 1.2829036712646484, 0.2113117128610611, 1.467348575592041, 1.6145037412643433, 1.2537493705749512, 0.2700965404510498]
+        - name: "rizon_dual_2"
+          description: "Legacy home pose 2"
+          joints_left: [2.019, 1.316, 0.446, 2.295, 0.418, 2.697, 0.858]  # Right arm home joint angles [rad]
+          joints_right: [2.019, 1.316, 0.446, 2.295, 0.418, 2.697, 0.858]
+        - name: "rizon_dual_3"
+          description: "Legacy home pose 3"
+          joints_left: [1.088046908378601, 1.2829036712646484, 0.2113117128610611, 1.467348575592041, 1.6145037412643433, 1.2537493705749512, 0.2700965404510498]
+          joints_right: [1.088046908378601, 1.2829036712646484, 0.2113117128610611, 1.467348575592041, 1.6145037412643433, 1.2537493705749512, 0.2700965404510498]
+
+        - name: "rizon_dual_4"
+          description: "Legacy home pose 4"
+          joints_left: [2.129301687, 1.291543646, 0.42062435, 2.127730891, 0.120951317, 2.11394279, 0.940208868]
+          joints_right: [2.129301687, 1.291543646, 0.42062435, 2.127730891, 0.120951317, 2.11394279, 0.940208868]
+
+        - name: "rizon_dual_5"
+          description: "Legacy home pose 5"
+          joints_left: [2.019, 1.316, 0.446, 2.295, 0.418, 2.697, 0.858]  # Right arm home joint angles [rad]
+          joints_right: [2.019, 1.316, 0.446, 2.295, 0.418, 2.697, 0.858]
+
+        - name: "rizon_dual_6"
+          description: "Legacy home pose 6"
+          joints_left: [1.755649, 0.895529, 0.603186, 1.975220, 0.384683, 2.160714, 0.858187]  # Right arm home joint angles [rad]
+          joints_right: [1.755649, 0.895529, 0.603186, 1.975220, 0.384683, 2.160714, 0.858187]
+
+    max_velocity: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]  # 14 velocity limits [rad/s]
+    max_acceleration: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]  # 14 acceleration limits [rad/s²]

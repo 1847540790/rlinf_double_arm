@@ -1,0 +1,27 @@
+defaults:
+  - devices: default
+  - device_manager: synchronized
+  - action_executor: default
+  - consumer: default
+  - runtime: default
+  - _self_
+
+shared:
+  summary_shm_name: device_summary_data
+  policy_shm_name: policy_actions
+  joint_slider_control_shm: JointSlider_0_data
+  default_camera_shape: [480, 640, 3]
+  camera_dtype: uint8
+
+global_settings:
+  log_level: INFO
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 2.0
+  device_init_delay: 5.0
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+

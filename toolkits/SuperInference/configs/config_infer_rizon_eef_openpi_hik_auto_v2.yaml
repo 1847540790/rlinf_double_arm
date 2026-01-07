@@ -1,0 +1,88 @@
+defaults:
+  - devices: infer_rizon_eef_dual_abs_mode_umi_hik
+  - device_manager: infer_rizon_eef_dual
+  - action_executor: infer_rizon_eef_dual_auto_v2
+  - consumer: default
+  - runtime: default
+  - _self_
+
+# Camera configuration - modify these to change camera IDs
+camera:
+  left_id: 1
+  right_id: 0
+
+# Robot configuration
+robot:
+  home: 0  # Home preset index (0-5)
+
+shared:
+  summary_shm_name: device_summary_data
+  policy_shm_name: policy_actions
+
+global_settings:
+  log_level: INFO
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 2.0
+  device_init_delay: 12.0
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+summary_shm: device_summary_data
+
+policy:
+  class: OpenPiPolicy
+  params:
+    pi_config_name: "pi05_sort_tubes_1124" # CONFING NAME MUST BE CHANGED TO THE CORRECT CONFIG NAME`
+    ckpt_dir: "/home/noematrix/Desktop/yesen/SuperInference/data/pi05_sort_tubes_1124" # CKPT DIRECTORY MUST BE CHANGED TO THE CORRECT CKPT DIRECTORY
+#    pi_config_name: "pi05_pick_merge_1113" # CONFING NAME MUST BE CHANGED TO THE CORRECT CONFIG NAME`
+#    ckpt_dir: "/home/noematrix/Desktop/yesen/SuperInference/data/pi05_pick_merge_1113" # CKPT DIRECTORY MUST BE CHANGED TO THE CORRECT CKPT DIRECTORY
+    task: "sort the tubes into the bin" # TASK MUST BE CHANGED TO THE CORRECT TASK
+    #task: "put the tubes into the bin" # TASK MUST BE CHANGED TO THE CORRECT TASK
+    device: "cuda"
+    obs_horizon: 2
+    downsample: 1
+    obs_time_interval: 0.04
+    tcp_umi_json_path: "calibration/tcp_to_vive_transform_v1.json"
+    mask_inference: true
+    left_mask_offset_path: "calibration/umi_v1/mask_offset/left/robot2center_left.json"
+    right_mask_offset_path: "calibration/umi_v1/mask_offset/right/robot2center_right.json"
+    left_mask_image_path: "calibration/umi_v1/masks/robot/left_mask_270_360_center.png"
+    right_mask_image_path: "calibration/umi_v1/masks/robot/right_mask_270_360_center.png"
+    visualize_mask_offset: false
+    mask_offset_visual_scale: 0.4
+    apply_camera_mask: true
+    visualize_mask_application: false
+  fps: 0.8
+  original_chunk_length: 100
+  chunk_length: 100
+  robot_latency_steps: 0
+  gripper_latency_steps: 0
+  policy_shm_name: "policy_actions"
+  obs:
+    devices:
+      - "HikCameraDevice_${camera.left_id}"
+      - "HikCameraDevice_${camera.right_id}"
+      - "RizonRobot_1"
+  controls:
+    - shm: "RizonRobot_1_control"
+      shape: [16]
+      dtype: "float64"
+  infer_recorder:
+    enabled: true
+    camera_id: 0
+    save_path: ${policy.params.ckpt_dir}/recordings
+    width: 640
+    height: 480
+    fps: 10.0
+    scale: 0.4
+    show_window: false
+    enable_recording: true
+    auto_start_recording: true
+    record_key: "r"
+    window_name: "Inference Recorder"
+    video_format: "avi"
+    fourcc: "XVID"

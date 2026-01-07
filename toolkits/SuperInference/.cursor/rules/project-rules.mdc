@@ -1,0 +1,74 @@
+---
+alwaysApply: true
+---
+
+# Overview
+
+SuperInference is a robust and flexible system for managing and processing data from various devices, including physical sensors, cameras, and simulated robots. The system provides centralized device management, configurable data processing, and real-time visualization capabilities.
+
+# 通用编码标准
+- 使用`typing`库把所有函数的输入变量类型和输出类型都显式声明。
+- 使用`from utils.logger_config import logger` 中`loguru`库的`logger`来进行各种信息的输出和log。
+- 所有的代码注释都使用英语。
+- 尽量删除无用的debug用的注释代码（比如`print`等）。
+- 独立的工具脚本放入`scripts`目录下。
+- 测试脚本放入`tests`目录下，如非必要，不用写非常复杂的独立测试脚本。
+- 共享的工具函数库放入`utils`目录下。
+- 文件最开始的注释中要包含文件的简要说明、作者等信息。
+
+# 添加新的硬件设备的编码标准
+- 使用`devices/base.py` 作为新的device类的基类，可以参考`devices/camera.py`和`vive_tracker.py`进行实现。可以参考`config_test_camera.yaml`和`config_vive_tracker.yaml`进行config的编写。
+- 所有涉及到精准地以固定频率调用的操作，如果使用`time.sleep`进行控制，要进行类似下面代码的操作，确保调用频率稳定：
+```python
+from utils.time_control import precise_loop_timing
+
+# Create precise timing function
+wait_for_next_iteration = precise_loop_timing(self.update_interval)
+
+# something else here
+
+# Wait for next iteration using precise timing
+wait_for_next_iteration()
+```
+- 使用`consumer/base.py` 作为新的consumer类的基类。
+
+# 可视化的编码标准
+- 涉及6D Pose可视化、3D轨迹可视化、点云可视化、图片可视化、时间序列可视化的代码尽量使用`rerun`(https://rerun.io/docs/getting-started/what-is-rerun)库来进行。尽量使用`utils/rerun_visualization.py`中的工具函数来可视化，如果其中的功能不满足需求，可以往里添加新的功能。 可以参考`devices/robot.py`和`consumer/diffusion_policy_infer.py`来进行这些可视化工具函数的使用。其中如果要log文字或者数值可以使用`rr.TextLog`和`rr.NumberLog`。注意`rr.Scalar`已经被弃用，使用`rr.Scalars`替代，注意。如果要log图片可以使用`rr.ImageLog`。如果要log点云可以使用`rr.Points3D`。如果要log 6D Pose可以使用`rr.Transforms3D`。如果要log 3D轨迹可以使用`rr.Polyline3D`。如果要log时间序列可以使用`rr.TextLog`(短文本)或者`TextDocument`（复杂长文本）。注意`rr.set_time_nanos`已经被废弃，用 `set_time(timestamp=1e-9 * nanos)` or `set_time(duration=1e-9 * nanos)` 来替代。
+
+# 旋转3D变换
+尽量使用scipy的`scipy.spatial.transform.Rotation`类来进行3D旋转变换的计算。
+
+# 四元数（quaternion）的格式
+尽量优先使用`scipy`的格式（x, y, z, w）。注意不同的库对四元数的格式要求不同，具体如下：
+- `scipy`使用（x, y, z, w）
+- `rerun` 使用 （x, y, z, w）
+- Vive Tracker和OpenXR使用（x, y, z, w）
+- `transforms3d`使用 （w, x, y, z）
+- Flexiv RDK使用（w, x, y, z）
+
+# Git 相关
+commit message请使用英文。
+
+# Code Stucture
+
+## Core Components
+
+### 1. Devices (`devices/`)
+
+Devices are data sources that generate and write data to shared memory buffers.
+
+### 2. Device Manager (`manager/`)
+
+The Device Manager aggregates data from multiple devices into a unified summary shared memory.
+
+### 3. Consumers (`consumer/`)
+
+Consumers process and utilize the aggregated data from the Device Manager.
+
+### 4. Visualizers (`visualizers/`)
+
+Visualizers provide real-time data visualization and monitoring.
+
+### 5. Utilities (`utils/`)
+
+Core utilities for shared memory management and configuration.

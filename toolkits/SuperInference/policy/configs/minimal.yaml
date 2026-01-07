@@ -1,0 +1,17 @@
+# PolicyConnector YAML configuration (minimal)
+
+summary_shm: device_summary_data
+
+policy:
+  class: TinyMLPPolicy
+  params: {}
+  fps: 50.0
+  obs:
+    devices: [OpenCVCameraDevice_0, SimRobot_0, SimRobot_1]
+  controls:
+    - shm: SimRobot_0_control
+      shape: [7]
+      dtype: float64
+    - shm: SimRobot_1_control
+      shape: [7]
+      dtype: float64

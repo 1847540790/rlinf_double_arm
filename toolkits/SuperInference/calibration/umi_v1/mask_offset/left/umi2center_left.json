@@ -1,0 +1,42 @@
+{
+  "analysis_info": {
+    "mask_path": "/home/noematrix/Desktop/yesen/1117/SuperInference/masks/umi/left_mask_270_360.png",
+    "timestamp": "2025-11-20 17:45:19",
+    "image_dimensions": [
+      360,
+      270
+    ]
+  },
+  "mask_center": {
+    "x": 135.06094157052476,
+    "y": 171.40344715295868
+  },
+  "image_center": {
+    "x": 135.0,
+    "y": 180.0
+  },
+  "distance": 8.596768853877153,
+  "offset": {
+    "x": 0.060941570524761346,
+    "y": -8.596552847041323
+  },
+  "mask_properties": {
+    "mask_area": 42992,
+    "total_area": 97200,
+    "coverage_percentage": 44.23045267489712,
+    "bounding_box": {
+      "min_x": 12,
+      "min_y": 60,
+      "max_x": 258,
+      "max_y": 283,
+      "width": 247,
+      "height": 224,
+      "area": 55328
+    },
+    "circularity": 0.7850734137370711,
+    "image_dimensions": {
+      "width": 270,
+      "height": 360
+    }
+  }
+}

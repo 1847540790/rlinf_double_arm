@@ -1,0 +1,42 @@
+{
+  "analysis_info": {
+    "mask_path": "masks/robot/left_mask_360x270.png",
+    "timestamp": "2025-11-04 18:26:55",
+    "image_dimensions": [
+      270,
+      360
+    ]
+  },
+  "mask_center": {
+    "x": 194.96510719071014,
+    "y": 107.53070567217507
+  },
+  "image_center": {
+    "x": 180.0,
+    "y": 135.0
+  },
+  "distance": 31.28124940116873,
+  "offset": {
+    "x": 14.965107190710143,
+    "y": -27.469294327824926
+  },
+  "mask_properties": {
+    "mask_area": 35824,
+    "total_area": 97200,
+    "coverage_percentage": 36.8559670781893,
+    "bounding_box": {
+      "min_x": 70,
+      "min_y": 13,
+      "max_x": 320,
+      "max_y": 195,
+      "width": 251,
+      "height": 183,
+      "area": 45933
+    },
+    "circularity": 0.742095859206131,
+    "image_dimensions": {
+      "width": 360,
+      "height": 270
+    }
+  }
+}

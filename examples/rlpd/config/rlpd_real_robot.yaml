@@ -1,0 +1,119 @@
+# RLPD Configuration for Real Robot Training
+# RLPD = Reinforcement Learning with Prior Data
+# This configuration matches HIL-SERL defaults for real robot with cameras
+
+defaults:
+  - override hydra/job_logging: stdout
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+# Runner configuration
+runner:
+  task_type: rlpd
+  logger:
+    log_path: "./results/rlpd_real"
+    project_name: rlinf_rlpd
+    experiment_name: "rlpd_real_robot"
+    logger_backends: ["tensorboard", "wandb"]
+
+# RLPD specific configuration (matching HIL-SERL defaults)
+rlpd:
+  # Environment
+  max_episode_steps: 100  # max_traj_length in HIL-SERL
+  
+  # Replay buffers
+  replay_buffer_capacity: 200000  # HIL-SERL default
+  demo_buffer_capacity: 200000    # Same as replay buffer in HIL-SERL
+  training_starts: 100            # HIL-SERL default (min samples before training)
+  
+  # Training
+  batch_size: 256           # HIL-SERL default
+  learning_rate: 3.0e-4     # HIL-SERL default for actor/critic/temperature
+  discount: 0.97            # HIL-SERL default (gamma)
+  tau: 0.005                # soft_target_update_rate in HIL-SERL
+  
+  # SAC
+  init_temperature: 0.01    # temperature_init=1e-2 in HIL-SERL make_sac_pixel_agent
+  target_entropy: null      # Will be set to -action_dim / 2 (HIL-SERL default)
+  backup_entropy: false     # HIL-SERL default
+  critic_ensemble_size: 2   # HIL-SERL default
+  
+  # Update schedule (HIL-SERL style)
+  # cta_ratio=2 means: (cta_ratio - 1) critic-only updates, then 1 full update
+  cta_ratio: 2              # Critic-to-Actor ratio (HIL-SERL default)
+  steps_per_update: 50      # How often to publish network to actor (HIL-SERL default)
+  random_steps: 0           # HIL-SERL default
+  
+  # RLPD-style sampling (50/50 from online and demo buffers)
+  demo_ratio: 0.5           # batch_size // 2 from each buffer
+  
+  # Model architecture (for image-based observations)
+  hidden_dims: [256, 256]   # HIL-SERL default
+  
+  # ResNet-10 pretrained encoder matching HIL-SERL exactly:
+  # - Frozen ResNet-10 backbone (stage_sizes = 1,1,1,1)
+  # - Trainable spatial learned embeddings pooling (num_spatial_blocks=8)
+  # - Trainable bottleneck projection to 256 dims
+  # - ImageNet normalization
+  encoder_type: "resnet-pretrained"  # HIL-SERL default
+  
+  # Camera image keys - match your robot setup
+  # Examples from HIL-SERL:
+  #   - ["wrist_1", "wrist_2"] for dual wrist cameras
+  #   - ["side_1", "side_2"] for side cameras  
+  #   - ["image"] for single camera
+  image_keys: ["wrist_1", "wrist_2"]
+  
+  use_proprio: true         # HIL-SERL default - include proprioceptive state
+  
+  # Policy config (matching HIL-SERL)
+  tanh_squash_distribution: true
+  std_parameterization: "exp"
+  std_min: 1.0e-5
+  std_max: 5.0
+  
+  # Network config (matching HIL-SERL)
+  use_layer_norm: true
+  activations: "tanh"
+  
+  # Input device for human interventions
+  # Options: "mock", "keyboard", "spacemouse", "vivetracker"
+  input_device: "vivetracker"  # Or "spacemouse" depending on your setup
+  
+  # Logging
+  log_period: 10            # HIL-SERL default
+  eval_period: 2000         # HIL-SERL default
+  checkpoint_period: 5000   # Save checkpoints every N steps
+  buffer_period: 5000       # Save replay buffer every N steps
+  
+  # Paths
+  checkpoint_dir: "./results/rlpd_real/checkpoints"
+  buffer_dir: "./results/rlpd_real/buffers"
+
+# Real robot environment configuration
+env:
+  simulator_type: "real_robot"  # Your robot driver type
+  
+  # Camera configuration
+  cameras:
+    wrist_1:
+      serial_number: "YOUR_CAMERA_1_SERIAL"
+      dim: [128, 128]  # Image resolution
+    wrist_2:
+      serial_number: "YOUR_CAMERA_2_SERIAL"
+      dim: [128, 128]
+  
+  # Robot configuration
+  action_dim: 7             # 6-DoF + gripper
+  observation_dim: 14       # tcp_pose (7) + tcp_vel (6) + gripper (1)
+  max_steps_per_episode: 100
+  
+  # Action scaling
+  action_scale: [0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 1.0]  # xyz, rpy, gripper
+
+# Max training steps
+max_steps: 1000000  # HIL-SERL default
+

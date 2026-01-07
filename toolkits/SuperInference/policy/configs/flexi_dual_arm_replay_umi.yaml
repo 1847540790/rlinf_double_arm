@@ -1,0 +1,29 @@
+# Policy Connector Configuration with Observation Buffer
+# Example configuration showing how to use the new buffered observation mechanism
+
+summary_shm: "device_summary_data"
+
+policy:
+  fps: 25
+  chunk_length: 16
+  policy_shm_name: "policy_actions"
+  ckpt_dir: "/home/zixiying/23.58.12" # abs
+  # NEW: Observation buffer size - how many obs_dicts to store
+  # Your policy requires at least 2, so set this to 2 or more
+  obs_buffer_size: 2  # Store latest 2 observations
+  
+  obs:
+    devices:
+      - "OpenCVCameraDevice_0"
+      # - "OpenCVCameraDevice_2" 
+      - "RizonRobot_1"
+      # Add other observation devices as needed
+  
+  controls:
+    - shm: "RizonRobot_1_control"
+      shape: [16]  # Action dimension
+      dtype: "float64"
+    # Add other control devices as needed
+
+# Example with larger buffer for more temporal context
+# obs_buffer_size: 5  # Store latest 5 observations for more history

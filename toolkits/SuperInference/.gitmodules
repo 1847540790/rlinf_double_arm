@@ -1,0 +1,12 @@
+[submodule "third_party/data-scaling-laws"]
+	path = third_party/data-scaling-laws
+	url = git@github.com:LyuJ1998/Data-Scaling-Laws.git
+[submodule "third_party/umi_base"]
+	path = third_party/umi_base
+	url = git@github.com:xiaoxiaoxh/umi_base.git
+[submodule "third_party/openpi"]
+	path = third_party/openpi
+	url = git@github.com:LyuJ1998/openpi.git
+[submodule "third_party/MvImport"]
+	path = third_party/MvImport
+	url = git@github.com:yesen-chen/MvImport.git

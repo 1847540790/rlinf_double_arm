@@ -1,0 +1,84 @@
+# Configuration for Dual Flexiv HIL with ViveTracker
+# Usage: python train_dual_flexiv_vivetracker.py --config config/dual_flexiv_hil.yaml
+
+# ViveTracker settings
+vivetracker:
+  # Tracker serial numbers
+  left_serial: "LHR-37267EB0"
+  right_serial: "LHR-ED74041F"
+  
+  # Calibration file path
+  calib_path: "vive_calib.json"
+  auto_calib_tracker: true
+  
+  # Action mode
+  use_delta_actions: true  # false for absolute pose mode
+  
+  # Scaling
+  translation_scale: 1.0
+  rotation_scale: 1.0
+  
+  # Motion threshold for intervention detection
+  deadzone: 0.005  # 5mm
+  
+  # Velocity limits
+  max_velocity: 1.0  # m/s
+  max_angular_velocity: 2.0  # rad/s
+  
+  # Control frequency
+  control_freq: 20.0  # Hz
+
+# Robot settings  
+robot:
+  left_ip: "192.168.2.100"
+  right_ip: "192.168.2.101"
+  
+  # Initial poses [x, y, z, qx, qy, qz, qw]
+  init_pose_left: [0.7, 0.1, 0.0, 0.0, 0.0, 1.0, 0.0]
+  init_pose_right: [0.7, -0.1, -0.02, 0.0, 0.0, 1.0, 0.0]
+  
+  # Motion limits
+  max_vel: 1.0
+  max_acc: 3.0
+  max_angular_vel: 2.0
+  max_angular_acc: 8.0
+
+# HIL settings
+hil:
+  enable: true
+  input_device: "dual_vivetracker"
+  bc_weight: 0.1
+  intervention_advantage_boost: 1.5
+
+# PPO settings (when training)
+ppo:
+  clip_ratio: 0.2
+  vf_coef: 0.5
+  entropy_coef: 0.01
+  max_grad_norm: 0.5
+  gamma: 0.99
+  gae_lambda: 0.95
+  num_epochs: 10
+  minibatch_size: 64
+  learning_rate: 3.0e-4
+
+# Rollout settings
+rollout:
+  rollout_steps: 2048
+  num_envs: 1
+
+# Environment settings
+env:
+  max_episode_steps: 500
+  use_mock: false
+
+# Logging settings
+logging:
+  log_interval: 10
+  eval_interval: 100
+  save_interval: 1000
+  checkpoint_dir: "./checkpoints/dual_flexiv_hil"
+
+# Training settings
+max_steps: 100000
+

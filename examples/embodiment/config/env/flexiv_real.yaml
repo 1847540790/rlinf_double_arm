@@ -1,0 +1,43 @@
+# Flexiv Real Robot Environment Configuration
+# This configuration is for training with a physical Flexiv robot
+
+simulator_type: "flexiv"
+
+# Robot hardware configuration
+robot_ip: "192.168.0.109"  # IP address of the Flexiv robot
+camera_serials:
+  - "322142001230"  # Main camera serial
+  - "322142001231"  # Wrist camera serial (optional)
+
+# Task configuration
+task_description: "Perform the manipulation task"
+
+# Environment settings
+total_num_envs: 1  # Must be 1 for real robot
+seed: 42
+group_size: 1  # For real robot, always 1
+auto_reset: False  # Manual reset for real robot (safety)
+ignore_terminations: False
+use_rel_reward: False
+use_fixed_reset_state_ids: False
+
+# Episode configuration
+max_episode_steps: 300  # Maximum steps per episode
+max_steps_per_rollout_epoch: 300
+
+# Observation settings
+image_size: 256
+use_wrist_image: True
+use_proprio: True
+
+# Action settings
+action_dim: 7  # 3 pos + 3 rot (axis-angle) + 1 gripper
+action_scale: 1.0
+
+# Video recording
+video_cfg:
+  save_video: False  # Enable for debugging
+  video_base_dir: null
+
+# Evaluation mode (set in eval config)
+is_eval: False

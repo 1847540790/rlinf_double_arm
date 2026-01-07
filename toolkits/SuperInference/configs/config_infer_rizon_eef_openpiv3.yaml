@@ -1,0 +1,86 @@
+defaults:
+  - devices: infer_rizon_eef_dual_abs_mode_umi
+  - device_manager: infer_rizon_eef_dual
+  - action_executor: infer_rizon_eef_dual
+  - consumer: default
+  - runtime: default
+  - _self_
+
+# Camera configuration - modify these to change camera IDs
+camera:
+  left_id: 0
+  right_id: 2
+
+# Robot configuration
+robot:
+  home: 0  # Home preset index (0-5)
+
+shared:
+  summary_shm_name: device_summary_data
+  policy_shm_name: policy_actions
+
+global_settings:
+  log_level: INFO
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 2.0
+  device_init_delay: 12.0
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+summary_shm: device_summary_data
+
+policy:
+  class: OpenPiPolicyV3
+  params:
+    pi_config_name: "pi05_place1021"
+    ckpt_dir: "/home/zixiying/Desktop/yesen/SuperInference/data/pi05_1102_3w_bs16"
+#    task: "place the wooden block and the blue block in the dark area"
+    task: "put the cubes on the dark pad"
+    device: "cuda"
+    obs_horizon: 2
+    downsample: 1
+    obs_time_interval: 0.04
+    tcp_umi_json_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/tcp_to_vive_transform.json"
+    mask_inference: true
+    left_mask_offset_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/mask_offset/left/mask_offset_analysis_20250929_151954.json"
+    right_mask_offset_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/mask_offset/right/mask_offset_analysis_20250929_152016.json"
+    visualize_mask_offset: false
+    mask_offset_visual_scale: 0.4
+    apply_camera_mask: true
+    left_mask_image_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/masks/umi/mapped/left_mask.png"
+    right_mask_image_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/masks/umi/mapped/right_mask.png"
+    visualize_mask_application: false
+  fps: 1.5
+  original_chunk_length: 40
+  chunk_length: 16
+  robot_latency_steps: 5
+  gripper_latency_steps: 5
+  policy_shm_name: "policy_actions"
+  obs:
+    devices:
+      - "OpenCVCameraDevice_${camera.left_id}"
+      - "OpenCVCameraDevice_${camera.right_id}"
+      - "RizonRobot_1"
+  controls:
+    - shm: "RizonRobot_1_control"
+      shape: [16]
+      dtype: "float64"
+  infer_recorder:
+    enabled: true
+    camera_id: 7
+    save_path: ${policy.params.ckpt_dir}/recordings
+    width: 640
+    height: 480
+    fps: 10.0
+    scale: 0.4
+    show_window: false
+    enable_recording: true
+    auto_start_recording: true
+    record_key: "r"
+    window_name: "Inference Recorder"
+
+

@@ -1,0 +1,3 @@
+[submodule "toolkits/SuperInference"]
+	path = toolkits/SuperInference
+	url = https://github.com/NoematrixTeam/SuperInference.git

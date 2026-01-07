@@ -1,0 +1,36 @@
+{
+  "analysis_info": {
+    "umi_mask_path": "masks/umi/mapped/right_mask.png",
+    "robot_mask_path": "masks/robot/mapped/right_mask.png",
+    "analysis_method": "centroid",
+    "timestamp": "2025-09-29 15:20:16",
+    "mask_dimensions": [
+      1200,
+      1600
+    ]
+  },
+  "offset_results": {
+    "centroid": {
+      "offset_x": -38.89674556506111,
+      "offset_y": -53.24827504618281,
+      "offset_magnitude": 65.94191088334517,
+      "offset_angle_degrees": -126.14734302107914
+    }
+  },
+  "alignment_quality": {
+    "centroid": {
+      "umi_centroid": [
+        775.0367625919777,
+        525.2195460231702
+      ],
+      "robot_centroid": [
+        813.9335081570388,
+        578.467821069353
+      ],
+      "area_ratio": 0.9758131981693814,
+      "iou_after_alignment": 0.9743047252286526,
+      "umi_area": 772198,
+      "robot_area": 753521
+    }
+  }
+}

@@ -1,0 +1,72 @@
+defaults:
+  - devices: infer_rizon_iphone_umi_dual
+  - device_manager: infer_rizon_iphone_umi_dual
+  - action_executor: infer_rizon_iphone_umi_dual
+  - consumer: default
+  - runtime: default
+  - _self_
+
+shared:
+  summary_shm_name: device_summary_data
+  policy_shm_name: policy_actions
+
+global_settings:
+  log_level: INFO
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 2.0
+  device_init_delay: 12.0
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+# Provide policy configuration for DiffusionPolicyInfer consumer
+summary_shm: device_summary_data
+
+policy:
+  class: DiffusionPolicyIPhoneUMI
+  params:
+    ckpt_dir: "/home/fangyuan/Documents/GitHub/julyfun/umi_base/data/outputs/2025.11.28/21.53.17_train_diffusion_unet_timm_single_right_arm_pick_and_place_s1_image_only"
+    num_inference_steps: 8
+    device: "cuda"
+    obs_time_interval: 0.0333334
+    tcp_umi_json_path: "/home/fangyuan/lt_ws/SuperInference/calibration/tcp_to_umi_transform.json"
+    right_robot_base_to_world_transform: "/home/fangyuan/lt_ws/SuperInference/calibration/right_base_to_world.json"
+    left_robot_base_to_world_transform: "/home/fangyuan/lt_ws/SuperInference/calibration/left_base_to_world.json"
+    use_relative_action: true
+    use_inter_gripper: true
+ 
+  fps: 1.25
+  chunk_length: 12
+  robot_latency_steps: 2
+  manual_confirm: false
+  gripper_latency_steps: 0
+  policy_shm_name: "policy_actions"
+  obs:
+    devices:
+      - "IPhoneCameraDevice_0"
+      - "IPhoneCameraDevice_1"
+      # - "RealSenseCamera_0"
+      - "RizonRobot_2"
+  controls:
+    - shm: "RizonRobot_2_control"
+      shape: [16]
+      dtype: "float64"
+  infer_recorder:
+    enabled: true
+    use_realsense: true
+    camera_id: 6
+    save_path: "/home/fangyuan/lt_ws/superinference_video"
+    width: 1080
+    height: 640
+    fps: 30.0
+    scale: 1
+    realsense_serial: '819612073139'
+    show_window: true
+    enable_recording: true
+    auto_start_recording: true
+    record_key: "r"
+    window_name: "Inference Recorder"
+

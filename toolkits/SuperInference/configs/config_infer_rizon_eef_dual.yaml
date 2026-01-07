@@ -1,0 +1,71 @@
+defaults:
+  - devices: infer_rizon_eef_dual
+  - device_manager: infer_rizon_eef_dual
+  - action_executor: infer_rizon_eef_dual
+  - consumer: default
+  - runtime: default
+  - _self_
+
+shared:
+  summary_shm_name: device_summary_data
+  policy_shm_name: policy_actions
+
+global_settings:
+  log_level: INFO
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 2.0
+  device_init_delay: 12.0
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+# Provide policy configuration for DiffusionPolicyInfer consumer
+summary_shm: device_summary_data
+
+policy:
+  class: DiffusionPolicy
+  params:
+    ckpt_dir: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/data/outputs/2025.09.29_pick_umi_mask_bf16/09.28.16"
+    num_inference_steps: 16
+    device: "cuda"
+    obs_time_interval: 0.04
+    tcp_umi_json_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/tcp_to_vive_transform.json"
+    mask_inference: true
+    left_mask_offset_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/mask_offset/left/mask_offset_analysis_20250929_151954.json"
+    right_mask_offset_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/mask_offset/right/mask_offset_analysis_20250929_152016.json"
+    visualize_mask_offset: false
+    mask_offset_visual_scale: 0.4
+    apply_camera_mask: true
+    left_mask_image_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/masks/umi/mapped/left_mask.png"
+    right_mask_image_path: "/home/zixiying/Desktop/yesen/SuperInference/calibration/masks/umi/mapped/right_mask.png"
+    visualize_mask_application: false
+  fps: 1.5
+  chunk_length: 16
+  latency_steps: 5
+  policy_shm_name: "policy_actions"
+  obs:
+    devices:
+      - "OpenCVCameraDevice_0"
+      - "OpenCVCameraDevice_2"
+      - "RizonRobot_1"
+  controls:
+    - shm: "RizonRobot_1_control"
+      shape: [16]
+      dtype: "float64"
+  infer_recorder:
+    enabled: false
+    camera_id: 6
+    save_path: "./recordings"
+    width: 1600
+    height: 1200
+    fps: 5.0
+    scale: 0.4
+    show_window: true
+    enable_recording: true
+    auto_start_recording: true
+    record_key: "r"
+    window_name: "Inference Recorder"
+

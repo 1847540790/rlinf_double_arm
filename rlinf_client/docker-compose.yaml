@@ -1,0 +1,14 @@
+services:
+  rlinf_client:
+    image: rlinf/rlinf:agentic-rlinf0.1-torch2.6.0-openvla-openvlaoft-pi0
+    container_name: ray_client
+    network_mode: host
+    shm_size: 10G
+    gpus: all
+    restart: always
+    environment:
+      - RLINF_NODE_RANK=1
+      - RANK=1
+    volumes:
+      - ../:/workspace/RLinf
+    command: sh -c "/opt/venv/openpi/bin/ray start --memory=10737418240 --address=${RAY_SERVER_URL} --node-ip-address=${RAY_CLIENT_IP} --redis-password=${RAY_PASSWORD} --block"

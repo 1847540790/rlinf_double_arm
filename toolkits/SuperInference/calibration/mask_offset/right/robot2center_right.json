@@ -1,0 +1,42 @@
+{
+  "analysis_info": {
+    "mask_path": "/home/yesenchen/cys/SuperInference/calibration/masks/robot/mapped/right_mask_400x300.png",
+    "timestamp": "2025-10-16 18:50:45",
+    "image_dimensions": [
+      300,
+      400
+    ]
+  },
+  "mask_center": {
+    "x": 203.47243693196296,
+    "y": 144.63804892550752
+  },
+  "image_center": {
+    "x": 200.0,
+    "y": 150.0
+  },
+  "distance": 6.388140384471165,
+  "offset": {
+    "x": 3.47243693196296,
+    "y": -5.361951074492481
+  },
+  "mask_properties": {
+    "mask_area": 47092,
+    "total_area": 120000,
+    "coverage_percentage": 39.24333333333333,
+    "bounding_box": {
+      "min_x": 67,
+      "min_y": 33,
+      "max_x": 340,
+      "max_y": 243,
+      "width": 274,
+      "height": 211,
+      "area": 57814
+    },
+    "circularity": 0.7958540231524146,
+    "image_dimensions": {
+      "width": 400,
+      "height": 300
+    }
+  }
+}

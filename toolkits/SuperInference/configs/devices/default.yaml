@@ -1,0 +1,50 @@
+devices:
+  - class: BaseDevice
+    device_id: 0
+    data_shape: [7]
+    fps: 1000.0
+    data_dtype: float64
+    buffer_size: 1000
+    hardware_latency_ms: 1.0
+
+  - class: BaseDevice
+    device_id: 1
+    data_shape: [7]
+    fps: 1000.0
+    data_dtype: float32
+    buffer_size: 5000
+    hardware_latency_ms: 1.0
+
+
+  - class: JointSlider
+    device_id: 0
+    data_shape: [7]
+    fps: 10.0
+    data_dtype: float64
+    buffer_size: 100
+    hardware_latency_ms: 0.0
+    num_joints: 7
+    joint_ranges:
+      - [-3.14, 3.14]
+      - [-3.14, 3.14]
+      - [-3.14, 3.14]
+      - [-3.14, 3.14]
+      - [-3.14, 3.14]
+      - [-3.14, 3.14]
+      - [-3.14, 3.14]
+
+  - class: SimRobot
+    device_id: 0
+    data_shape: [14]
+    fps: 100.0
+    data_dtype: float64
+    buffer_size: 100
+    hardware_latency_ms: 10.0
+    control_shape: [7]
+    control_dtype: float64
+    control_buffer_size: 100
+    urdf_path: null
+    joint_indices: null
+    enable_gui: true
+    control_shm_name: ${shared.joint_slider_control_shm}
+

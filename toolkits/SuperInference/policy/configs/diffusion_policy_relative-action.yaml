@@ -1,0 +1,51 @@
+# PolicyConnector YAML configuration with chunking support
+
+summary_shm: device_summary_data
+
+policy:
+  class: DiffusionPolicy
+  params: 
+    ckpt_dir: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/data/outputs/2025.09.29_pick_umi_mask_bf16/09.28.16"
+    num_inference_steps: 16
+    device: "cuda"
+    obs_time_interval: 0.04
+    tcp_umi_json_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/tcp_to_vive_transform.json"
+    mask_inference: true
+    left_mask_offset_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/mask_offset/left/mask_offset_analysis_20250929_151954.json"
+    right_mask_offset_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/mask_offset/right/mask_offset_analysis_20250929_152016.json"
+    visualize_mask_offset: false
+    mask_offset_visual_scale: 0.4
+    apply_camera_mask: true
+    left_mask_image_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/masks/umi/mapped/left_mask.png"
+    right_mask_image_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/masks/umi/mapped/right_mask.png"
+    #left_mask_image_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/masks/robot/mapped/left_mask.png"
+    #right_mask_image_path: "/home/zixiying/Desktop/xuehan/SuperInference_replay_debug/calibration/masks/robot/mapped/right_mask.png"
+    visualize_mask_application: false
+#    tcp_vive_T: [[  0.0000  , -0.9397 ,  0.3420,  -0.0317], [1.0000 ,  0.0000  , 0.0000  , 0.0000], [0.0000  , 0.3420 ,  0.9397 , -0.272], [0.0000  , 0.0000  , 0.0000  , 1.0000]])
+  fps: 1.5
+  chunk_length: 16  # Generate 10 future actions
+  latency_steps: 5
+  policy_shm_name: "policy_actions"  # SHM name for ActionExecutor
+  
+  obs:
+    devices:       
+      - "OpenCVCameraDevice_0"
+      - "OpenCVCameraDevice_2"
+      - "RizonRobot_1"
+  controls:
+    - shm: "RizonRobot_1_control"
+      shape: [16]  # Action dimension
+      dtype: "float64"
+  infer_recorder:
+    enabled: true
+    camera_id: 6
+    save_path: "./recordings"
+    width: 1600
+    height: 1200
+    fps: 5.0
+    scale: 0.4
+    show_window: true
+    enable_recording: true
+    auto_start_recording: true
+    record_key: "r"
+    window_name: "Inference Recorder"

@@ -1,0 +1,11 @@
+serverAddr = "14.103.157.86"
+serverPort = 28000
+auth.token = "noematrix"
+
+
+[[proxies]]
+name = "ray-client-1"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 28103
+remotePort = 28103

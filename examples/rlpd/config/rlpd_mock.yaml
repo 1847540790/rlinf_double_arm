@@ -1,0 +1,96 @@
+# RLPD Configuration for Mock Environment Testing
+# RLPD = Reinforcement Learning with Prior Data
+# This configuration is for testing the RLPD pipeline without real hardware
+# Parameters match HIL-SERL defaults exactly
+
+defaults:
+  - override hydra/job_logging: stdout
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+# Runner configuration
+runner:
+  task_type: rlpd
+  logger:
+    log_path: "./results/rlpd_mock"
+    project_name: rlinf_rlpd
+    experiment_name: "rlpd_mock_test"
+    logger_backends: ["tensorboard"]
+
+# RLPD specific configuration (matching HIL-SERL defaults)
+rlpd:
+  # Environment
+  max_episode_steps: 100  # max_traj_length in HIL-SERL
+  
+  # Replay buffers
+  replay_buffer_capacity: 200000  # HIL-SERL default
+  demo_buffer_capacity: 200000    # Same as replay buffer in HIL-SERL
+  training_starts: 100            # HIL-SERL default (min samples before training)
+  
+  # Training
+  batch_size: 256           # HIL-SERL default
+  learning_rate: 3.0e-4     # HIL-SERL default for actor/critic/temperature
+  discount: 0.97            # HIL-SERL default (gamma)
+  tau: 0.005                # soft_target_update_rate in HIL-SERL
+  
+  # SAC
+  init_temperature: 0.01    # temperature_init=1e-2 in HIL-SERL
+  target_entropy: null      # Default: -action_dim / 2 (HIL-SERL uses this, not -action_dim)
+  backup_entropy: false     # HIL-SERL default
+  critic_ensemble_size: 2   # HIL-SERL default
+  
+  # Update schedule (HIL-SERL style)
+  # cta_ratio=2 means: (cta_ratio - 1) critic-only updates, then 1 full update
+  cta_ratio: 2              # Critic-to-Actor ratio (HIL-SERL default)
+  steps_per_update: 50      # How often to publish network to actor (HIL-SERL default)
+  random_steps: 0           # HIL-SERL default
+  
+  # RLPD-style sampling (50/50 from online and demo buffers)
+  demo_ratio: 0.5           # batch_size // 2 from each buffer
+  
+  # Model architecture
+  hidden_dims: [256, 256]   # HIL-SERL default
+  # Encoder types available:
+  #   - "resnet-pretrained": Frozen ResNet-10 + trainable head (HIL-SERL default for images)
+  #   - "resnet": Trainable ResNet-10
+  #   - "cnn": Simple CNN encoder
+  #   - "mlp": MLP encoder for state-only observations
+  encoder_type: "mlp"       # Use MLP for mock (no images); use "resnet-pretrained" for real robot
+  image_keys: []            # Empty for mock (no images); e.g. ["wrist_1", "wrist_2"] for real
+  use_proprio: true         # HIL-SERL default
+  
+  # Policy config (matching HIL-SERL)
+  tanh_squash_distribution: true
+  std_parameterization: "exp"
+  std_min: 1.0e-5
+  std_max: 5.0
+  
+  # Network config (matching HIL-SERL)
+  use_layer_norm: true
+  activations: "tanh"
+  
+  # Input device
+  input_device: "mock"  # Use mock device for testing
+  
+  # Logging
+  log_period: 10            # HIL-SERL default
+  eval_period: 2000         # HIL-SERL default
+  checkpoint_period: 0      # HIL-SERL default (0 = disabled)
+  buffer_period: 0          # HIL-SERL default (0 = disabled)
+  
+  # Paths
+  checkpoint_dir: "./results/rlpd_mock/checkpoints"
+  buffer_dir: "./results/rlpd_mock/buffers"
+
+# Mock environment configuration (for testing)
+env:
+  simulator_type: "mock"
+  obs_dim: 14  # tcp_pose (7) + tcp_vel (6) + gripper (1)
+  action_dim: 7
+  max_steps_per_episode: 100  # Match max_traj_length
+
+# Max training steps
+max_steps: 1000000  # HIL-SERL default
