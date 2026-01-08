@@ -79,9 +79,9 @@ class RemoteSimSender:
             resp = requests.post(url, json=data, timeout=self.timeout)
             resp.raise_for_status()
             mode_str = "完整观测" if return_obs else "轻量模式"
-            print(
-                f"[RemoteSimSender] step 请求已发送 ({mode_str}), status={resp.status_code}, url={url}"
-            )
+            # print(
+            #     f"[RemoteSimSender] step 请求已发送 ({mode_str}), status={resp.status_code}, url={url}"
+            # )
         except Exception as e:
             print(f"[RemoteSimSender] step 请求发送失败: {e}, url={url}")
 

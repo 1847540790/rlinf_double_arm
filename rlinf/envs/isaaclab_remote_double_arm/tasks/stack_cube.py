@@ -58,7 +58,7 @@ class RemoteIsaaclabStackCubeEnv(RemoteIsaaclabBaseEnv):
             "policy": {
                 "Camera_left": np.ndarray,  # shape: (num_envs, H, W, 3), dtype=uint8
                 "Camera_right": np.ndarray,  # shape: (num_envs, H, W, 3), dtype=uint8
-                "Robot_state": np.ndarray,   # shape: (num_envs, 44), dtype=float64
+                "Robot_state": np.ndarray,   # shape: (num_envs, 14), dtype=float64
             }
         }
         """
@@ -87,10 +87,4 @@ class RemoteIsaaclabStackCubeEnv(RemoteIsaaclabBaseEnv):
         # print(f"task_descriptions: {len(env_obs['task_descriptions'])} items, first: {env_obs['task_descriptions'][0] if env_obs['task_descriptions'] else 'empty'}")
         return env_obs
 
-    def add_image(self, obs):
-        """
-        从观测中提取图像用于视频记录
-        """
-        img = obs["policy"]["Camera_left"].permute(0, 3, 1, 2).cpu().numpy()
-        return img
 

@@ -315,7 +315,6 @@ class RemoteIsaaclabBaseEnv(gym.Env):
 
     def chunk_step(self, chunk_actions):
         # chunk_actions: [num_envs, chunk_step, action_dim]
-        print("[DEBUG] chunk_step: entry, chunk_actions=", chunk_actions.shape)
         chunk_size = chunk_actions.shape[1]
         chunk_rewards = []
 
@@ -326,7 +325,7 @@ class RemoteIsaaclabBaseEnv(gym.Env):
         
         # 优化：中间步骤不处理观测，只获取奖励和终止信号
         # 只有最后一步需要完整观测用于下一轮推理
-        for i in range(chunk_size):
+        for i in range(chunk_size): 
             actions = chunk_actions[:, i]
             is_last_step = (i == chunk_size - 1)
             
@@ -350,7 +349,7 @@ class RemoteIsaaclabBaseEnv(gym.Env):
             else:
                 step_reward = step_reward.to(self.device)
 
-            chunk_rewards.append(   )
+            chunk_rewards.append(step_reward)
             raw_chunk_terminations.append(terminations)
             raw_chunk_truncations.append(truncations)
 

@@ -80,6 +80,10 @@ class RemoteIsaacLabServer:
         self.handshake_queue = queue.Queue()
         self.handshake_event = Event()
         
+        # Step 计数器
+        self.step_count = 0
+        # Reset 计数器
+        self.reset_count = 0
         # 注册路由
         self._register_routes()
         
@@ -109,31 +113,6 @@ class RemoteIsaacLabServer:
                 print(f"[RemoteIsaacLabServer] [handshake] 处理失败: {e}")
                 return flask.jsonify({"status": "error", "detail": str(e)}), 500
         
-        @self.app.route('/initialize', methods=['POST'])
-        def initialize():
-            """初始化环境（由仿真端触发，不运行本地仿真）"""
-            print(f"[RemoteIsaacLabServer] [initialize] ========== 收到初始化请求（来自仿真端） ==========")
-            try:
-                data = flask.request.json or {}
-                config = data.get("config", {})
-                print(f"[RemoteIsaacLabServer] [initialize] 环境配置: {config}")
-                
-                with self._lock:
-                    self.env_config = config
-                    print(f"[RemoteIsaacLabServer] [initialize] 初始化成功（无本地仿真）")
-                    
-                    return flask.jsonify({
-                        "status": "success",
-                        "device": self.local_device
-                    })
-                    
-            except Exception as e:
-                print(f"[RemoteIsaacLabServer] [initialize] 初始化失败: {e}")
-                return flask.jsonify({
-                    "status": "error",
-                    "detail": str(e)
-                }), 500
-        
         @self.app.route('/reset', methods=['POST'])
         def reset():
             """重置环境（接收仿真端发送的数据，不执行本地仿真）"""
@@ -148,8 +127,9 @@ class RemoteIsaacLabServer:
                     # 仿真端发送了完整的结果数据
                     result_data = data["data"]
                     obs, info = self._deserialize_data(result_data)
+                    self.reset_count += 1
                     
-                    print(f"[RemoteIsaacLabServer] [reset] 收到仿真端发送的 reset 数据")
+                    print(f"[RemoteIsaacLabServer] [reset] 收到仿真端发送的 reset 数据（第 {self.reset_count} 个 reset）")
                     
                     # 将请求参数放入队列，通知训练代码
                     self.reset_request_queue.put((seed, env_ids))
@@ -159,7 +139,6 @@ class RemoteIsaacLabServer:
                     self.reset_result_queue.put((obs, info))
                     self.reset_result_event.set()
                     
-                    # print(f"[RemoteIsaacLabServer] [reset] 数据已传递给训练代码")
                     return flask.jsonify({
                         "status": "success",
                         "message": "数据已接收"
@@ -203,11 +182,9 @@ class RemoteIsaacLabServer:
         @self.app.route('/step', methods=['POST'])
         def step():
             """执行一步（接收仿真端发送的完整结果，不执行本地仿真）"""
-            # print(f"[RemoteIsaacLabServer] [step] ========== 收到 step 请求（来自仿真端） ==========")
             try:
                 data = flask.request.json or {}
 
-                # 新流程：仿真端直接回传本步完整结果（obs, reward, terminations, truncations, infos）
                 if "data" not in data:
                     return flask.jsonify({
                         "status": "error",
@@ -217,9 +194,10 @@ class RemoteIsaacLabServer:
                 result_data = data["data"]
                 encoded_size = len(result_data) if isinstance(result_data, str) else None
                 step_result = self._deserialize_data(result_data)
+                self.step_count += 1
                 extra_info = f", tuple_len={len(step_result)}" if isinstance(step_result, tuple) else ""
                 print(
-                    f"[RemoteIsaacLabServer] [step] 收到仿真端发送的 step 数据，"
+                    f"[RemoteIsaacLabServer] [step] 收到仿真端发送的 step 数据（第 {self.step_count} 个 step），"
                     f"类型={type(step_result)}, 编码大小={encoded_size}{extra_info}"
                 )
 
@@ -227,7 +205,6 @@ class RemoteIsaacLabServer:
                 self.step_result_queue.put(step_result)
                 self.step_result_event.set()
 
-                # print(f"[RemoteIsaacLabServer] [step] 数据已传递给训练代码")
                 return flask.jsonify({
                     "status": "success",
                     "message": "数据已接收"
@@ -311,12 +288,10 @@ class RemoteIsaacLabServer:
     def run(self, debug: bool = False):
         """启动服务器"""
         print(f"[RemoteIsaacLabServer] 启动服务器，监听 {self.host}:{self.port}")
-        sys.stdout.flush()
-        sys.stderr.flush()
         # 禁用 Flask 的日志输出缓冲
         import logging
         log = logging.getLogger('werkzeug')
-        log.setLevel(logging.WARNING)  # 减少 Werkzeug 的输出，避免干扰
+        log.setLevel(logging.ERROR) 
         self.app.run(host=self.host, port=self.port, debug=debug, threaded=True, use_reloader=False)
     
     def set_env(self, env):
@@ -352,7 +327,6 @@ class RemoteIsaacLabServer:
             if current_time - last_reminder_time >= reminder_interval:
                 elapsed = int(current_time - start_time)
                 print(f"[RemoteIsaacLabServer] ⏳ 仍在等待 reset 请求，已等待 {elapsed} 秒...")
-                sys.stdout.flush()
                 last_reminder_time = current_time
             
             # 检查超时
@@ -387,12 +361,12 @@ class RemoteIsaacLabServer:
             current_time = time.time()
             if current_time - last_reminder_time >= reminder_interval:
                 elapsed = int(current_time - start_time)
-                print(f"[RemoteIsaacLabServer] ⏳ 正在等待握手数据，已等待 {elapsed} 秒...")
+                print(f"[RemoteIsaacLabServer] ⏳ 正在等待握手数据，已等待 {elapsed} 秒...", end='\r', flush=True)
+                sys.stdout.flush()
                 last_reminder_time = current_time
 
             if timeout is not None and (current_time - start_time) >= timeout:
                 print(f"[RemoteIsaacLabServer] ✗ 等待握手数据超时（{timeout} 秒）")
-                return None
                 return None
     
     def wait_for_reset_result(self, timeout=None):
@@ -436,7 +410,7 @@ class RemoteIsaacLabServer:
     def wait_for_step_result(self, timeout=None):
         """等待仿真端发送 step 结果数据"""
         import time
-        # print(f"[RemoteIsaacLabServer] 训练代码等待 step 结果数据...")
+        print(f"[RemoteIsaacLabServer] 训练代码等待第 {self.step_count + 1} 个 step 结果数据...")
         start_time = time.time()
         last_reminder_time = start_time
         reminder_interval = 10.0
@@ -447,8 +421,8 @@ class RemoteIsaacLabServer:
                 if not self.step_result_queue.empty():
                     result = self.step_result_queue.get()
                     self.step_result_event.clear()
-                    elapsed = int(time.time() - start_time)
-                    print(f"[RemoteIsaacLabServer] ✓ 收到 step 结果数据，已等待 {elapsed} 秒")
+                    elapsed = float(time.time() - start_time)
+                    print(f"[RemoteIsaacLabServer] ✓ 收到 第 {self.step_count + 1} 个 step 结果数据，已等待 {elapsed} 秒")
                     return result
                 else:
                     # 事件被设置但队列为空，清空事件继续等待
@@ -459,7 +433,6 @@ class RemoteIsaacLabServer:
             if current_time - last_reminder_time >= reminder_interval:
                 elapsed = int(current_time - start_time)
                 print(f"[RemoteIsaacLabServer] ⏳ 仍在等待 step 结果数据，已等待 {elapsed} 秒...")
-                sys.stdout.flush()
                 last_reminder_time = current_time
             
             # 检查超时

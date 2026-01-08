@@ -30,7 +30,7 @@ import torch
 
 from rlinf.envs.isaaclab_remote_double_arm.remote_server import RemoteIsaacLabServer
 from rlinf.envs.isaaclab_remote_double_arm.remote_sender import RemoteSimSender
-
+import sys
 
 def test_reset(server: RemoteIsaacLabServer, sender: RemoteSimSender, seed: int = None, env_ids: list = None):
     """测试 reset 流程"""
@@ -85,29 +85,26 @@ def test_reset(server: RemoteIsaacLabServer, sender: RemoteSimSender, seed: int 
 
 def test_step(server: RemoteIsaacLabServer, sender: RemoteSimSender, actions, return_obs: bool = True):
     """测试 step 流程"""
-    print("\n" + "=" * 60)
-    print(f"[测试] 开始测试 step 流程 (return_obs={return_obs})")
-    print("=" * 60)
     
     # 打印 action 信息
-    print(f"[训练端] action 类型: {type(actions)}")
+    print(f"[训练端] action 类型: {type(actions)}", end='\r', flush=True, file=sys.stderr)
     if isinstance(actions, torch.Tensor):
-        print(f"[训练端] action shape: {actions.shape}, dtype: {actions.dtype}")
-        print(f"[训练端] action min: {actions.min()}, max: {actions.max()}")
+        print(f"[训练端] action shape: {actions.shape}, dtype: {actions.dtype}", end='\r', flush=True, file=sys.stderr)
+        print(f"[训练端] action min: {actions.min()}, max: {actions.max()}", end='\r', flush=True, file=sys.stderr)
     elif hasattr(actions, 'shape'):
-        print(f"[训练端] action shape: {actions.shape}")
+        print(f"[训练端] action shape: {actions.shape}", end='\r', flush=True, file=sys.stderr)
     else:
-        print(f"[训练端] action: {actions}")
+        print(f"[训练端] action: {actions}", end='\r', flush=True, file=sys.stderr)
     
     # 训练端发送 step 指令到仿真端
-    print(f"[训练端] 发送 step 请求到仿真端...")
+    print(f"[训练端] 发送 step 请求到仿真端...", end='\r', flush=True, file=sys.stderr)
     send_start = time.perf_counter()
     sender.send_step(actions, return_obs=return_obs)
     send_elapsed = time.perf_counter() - send_start
-    print(f"[训练端] step 请求已发送，耗时 {send_elapsed:.3f}s")
+    print(f"[训练端] step 请求已发送，耗时 {send_elapsed:.3f}s", end='\r', flush=True, file=sys.stderr)
     
     # 等待仿真端发送 step 结果数据
-    print(f"[训练端] 等待仿真端发送 step 结果数据...")
+    print(f"[训练端] 等待仿真端发送 step 结果数据...", end='\r', flush=True, file=sys.stderr)
     wait_start = time.perf_counter()
     result = server.wait_for_step_result(timeout=30)
     wait_elapsed = time.perf_counter() - wait_start
@@ -123,31 +120,24 @@ def test_step(server: RemoteIsaacLabServer, sender: RemoteSimSender, actions, re
     obs, step_reward, terminations, truncations, infos = result
     total_elapsed = time.perf_counter() - send_start
     
-    print(f"[训练端] ✓ 收到 step 结果数据")
-    print(f"  - 发送耗时: {send_elapsed:.3f}s")
-    print(f"  - 等待耗时: {wait_elapsed:.3f}s")
-    print(f"  - 总耗时: {total_elapsed:.3f}s")
+    print(f"[训练端] ✓ 收到 step 结果数据", end='\r', flush=True, file=sys.stderr)
+    print(f"  - 发送耗时: {send_elapsed:.3f}s", end='\r', flush=True, file=sys.stderr)
+    print(f"  - 等待耗时: {wait_elapsed:.3f}s", end='\r', flush=True, file=sys.stderr)
+    print(f"  - 总耗时: {total_elapsed:.3f}s", end='\r', flush=True, file=sys.stderr)
     
-    if return_obs:
-        print(f"  - obs 类型: {type(obs)}")
-        if isinstance(obs, dict):
-            print(f"  - obs 键: {list(obs.keys())}")
-    else:
-        print(f"  - obs: {obs} (轻量模式，无观测数据)")
-    
-    print(f"  - reward 类型: {type(step_reward)}")
+    print(f"  - reward 类型: {type(step_reward)}", end='\r', flush=True, file=sys.stderr)
     if isinstance(step_reward, torch.Tensor):
-        print(f"  - reward shape: {step_reward.shape}")
-        print(f"  - reward 范围: [{step_reward.min():.4f}, {step_reward.max():.4f}]")
+        print(f"  - reward shape: {step_reward.shape}", end='\r', flush=True, file=sys.stderr)
+        print(f"  - reward 范围: [{step_reward.min():.4f}, {step_reward.max():.4f}]", end='\r', flush=True, file=sys.stderr)
     
-    print(f"  - terminations 类型: {type(terminations)}")
+    print(f"  - terminations 类型: {type(terminations)}", end='\r', flush=True, file=sys.stderr)
     if isinstance(terminations, torch.Tensor):
-        print(f"  - terminations shape: {terminations.shape}")
-        print(f"  - terminations 数量: {terminations.sum().item()}")
+        print(f"  - terminations shape: {terminations.shape}", end='\r', flush=True, file=sys.stderr)
+        print(f"  - terminations 数量: {terminations.sum().item()}", end='\r', flush=True, file=sys.stderr)
     
-    print(f"  - truncations 类型: {type(truncations)}")
+    print(f"  - truncations 类型: {type(truncations)}", end='\r', flush=True, file=sys.stderr)
     if isinstance(truncations, torch.Tensor):
-        print(f"  - truncations shape: {truncations.shape}")
+        print(f"  - truncations shape: {truncations.shape}", end='\r', flush=True, file=sys.stderr)
         print(f"  - truncations 数量: {truncations.sum().item()}")
     
     # 确认收到
@@ -231,10 +221,10 @@ def main():
     if not args.skip_step:
         print("\n" + "=" * 60)
         if args.test_steps > 0:
-            print(f"[测试] 开始测试 {args.test_steps} 步 step 流程")
+            print(f"[测试] 开始测试 {args.test_steps} 步 step 流程", end='\r', flush=True, file=sys.stderr)
         else:
             print(f"[测试] 开始无限循环测试（按 Ctrl+C 退出）")
-        print(f"[测试] 每 {args.obs_interval} 步返回一次完整观测")
+        print(f"[测试] 每 {args.obs_interval} 步返回一次完整观测", end='\r', flush=True, file=sys.stderr)
         print("=" * 60)
         
         success_count = 0
@@ -255,8 +245,8 @@ def main():
             # 生成随机动作
             actions = torch.randn(args.num_envs, args.action_dim).to(args.device)
             # fixed_action = [0, 0, 0, 1.5, 1.5, 1, 0]
-            actions = torch.tensor([actions] * args.num_envs, dtype=torch.float32).to(args.device)
-            print(f"[训练端] actions: {actions}")
+            # actions = torch.tensor([actions] * args.num_envs, dtype=torch.float32).to(args.device)
+            # print(f"[训练端] actions: {actions}")
             
             # 每隔 obs_interval 步返回一次完整观测
             # 例如 obs_interval=5: 第5, 10, 15...步返回完整观测

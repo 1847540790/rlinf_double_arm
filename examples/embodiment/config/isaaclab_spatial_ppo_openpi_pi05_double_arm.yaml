@@ -44,7 +44,7 @@ algorithm:
   normalize_advantages: True
   kl_penalty: kl  # how to estimate kl divergence: kl or kl_penalty
   group_size: 1
-  max_episode_steps: 500
+  max_episode_steps: 240
   use_ordered_reset_state_ids: False
   reward_coef: 1.0
   n_chunk_steps: 5
@@ -108,13 +108,13 @@ env:
   train:
     total_num_envs: 1
     max_episode_steps: 100
-    max_steps_per_rollout_epoch: 500
+    max_steps_per_rollout_epoch: 240
     use_fixed_reset_state_ids: True
 
   eval:
     total_num_envs: 1
     max_episode_steps: 100
-    max_steps_per_rollout_epoch: 500
+    max_steps_per_rollout_epoch: 240
     auto_reset: True
     ignore_terminations: True
     use_fixed_reset_state_ids: True
