@@ -409,7 +409,8 @@ class LiberoEnv(gym.Env):
             chunk_rewards.append(step_reward)
             raw_chunk_terminations.append(terminations)
             raw_chunk_truncations.append(truncations)
-
+            print("raw_chunk_terminations: ", raw_chunk_terminations)
+            print("raw_chunk_truncations: ", raw_chunk_truncations)
         chunk_rewards = torch.stack(chunk_rewards, dim=1)  # [num_envs, chunk_steps]
         raw_chunk_terminations = torch.stack(
             raw_chunk_terminations, dim=1

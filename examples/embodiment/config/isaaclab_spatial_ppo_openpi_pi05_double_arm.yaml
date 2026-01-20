@@ -49,8 +49,8 @@ algorithm:
   reward_coef: 1.0
   n_chunk_steps: 5
   n_eval_chunk_steps: 5
-  num_group_envs: 1 #64
-  rollout_epoch: 8 #8
+  num_group_envs: 8 #64
+  rollout_epoch: 64 #8
   reward_type: chunk_level
   logprob_type: chunk_level
   entropy_type: token_level
@@ -106,7 +106,10 @@ env:
   enable_offload: False
 
   train:
-    total_num_envs: 1
+    # Must match the simulator-side vectorized env count (otherwise tensors have
+    # batch=N but task_descriptions length=1, causing prompt index errors).
+    # Keep it consistent with algorithm.num_group_envs used by this experiment.
+    total_num_envs: ${algorithm.num_group_envs}
     max_episode_steps: 100
     max_steps_per_rollout_epoch: 240
     use_fixed_reset_state_ids: True

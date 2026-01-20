@@ -95,6 +95,8 @@ env:
 
   # Override the default values in env/train or env/eval
   train:
+    auto_reset: False
+    ignore_terminations: False
     total_num_envs: 64
     max_episode_steps: 240 # max episode steps for truncation
     max_steps_per_rollout_epoch: 240

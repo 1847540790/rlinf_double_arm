@@ -361,8 +361,9 @@ class RemoteIsaacLabServer:
             current_time = time.time()
             if current_time - last_reminder_time >= reminder_interval:
                 elapsed = int(current_time - start_time)
-                print(f"[RemoteIsaacLabServer] ⏳ 正在等待握手数据，已等待 {elapsed} 秒...", end='\r', flush=True)
-                sys.stdout.flush()
+                # 使用 stderr 确保在 Ray 分布式环境中实时输出
+                print(f"[RemoteIsaacLabServer] ⏳ 正在等待握手数据，已等待 {elapsed} 秒...", end='\r', file=sys.stderr, flush=True)
+                sys.stderr.flush()
                 last_reminder_time = current_time
 
             if timeout is not None and (current_time - start_time) >= timeout:

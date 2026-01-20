@@ -91,7 +91,7 @@ class RemoteIsaaclabBaseEnv(gym.Env):
         """初始化远程服务器（训练服务器作为服务端，等待仿真端连接，不运行本地仿真）"""
         # 获取服务器配置
         server_host = getattr(self.cfg, 'server_host', '0.0.0.0')
-        server_port = getattr(self.cfg, 'erver_port', 8446)
+        server_port = getattr(self.cfg, 'server_port', 8446)
         local_device = getattr(self.cfg, 'device', 'cuda')
         handshake_token = getattr(self.cfg, 'remote_handshake_token', '123')
         

@@ -83,6 +83,36 @@ def test_reset(server: RemoteIsaacLabServer, sender: RemoteSimSender, seed: int 
     return True
 
 
+def generate_actions(num_envs: int, action_dim: int, device: str = "cuda"):
+    """生成符合要求的动作
+    
+    如果 action_dim 是 7 维：前3维xyz，然后3维欧拉角，然后夹爪宽度
+    如果 action_dim 是 14 维：两个手臂（每个7维）
+    """
+    if action_dim == 7:
+        # 单臂：xyz(3) + 欧拉角(3) + 夹爪宽度(1)
+        actions = torch.zeros(num_envs, 7, device=device)
+        actions[:, 0:3] = torch.randn(num_envs, 3, device=device)  # xyz
+        actions[:, 3:6] = torch.randn(num_envs, 3, device=device)  # 欧拉角
+        actions[:, 6] = torch.abs(torch.randn(num_envs, device=device))  # 夹爪宽度（正数）
+    elif action_dim == 14:
+        # 双臂：每个手臂7维
+        actions = torch.zeros(num_envs, 14, device=device)
+        # 第一个手臂：xyz(3) + 欧拉角(3) + 夹爪宽度(1)
+        actions[:, 0:3] = torch.randn(num_envs, 3, device=device)  # xyz
+        actions[:, 3:6] = torch.randn(num_envs, 3, device=device)  # 欧拉角
+        actions[:, 6] = torch.abs(torch.randn(num_envs, device=device))  # 夹爪宽度
+        # 第二个手臂：xyz(3) + 欧拉角(3) + 夹爪宽度(1)
+        actions[:, 7:10] = torch.randn(num_envs, 3, device=device)  # xyz
+        actions[:, 10:13] = torch.randn(num_envs, 3, device=device)  # 欧拉角
+        actions[:, 13] = torch.abs(torch.randn(num_envs, device=device))  # 夹爪宽度
+    else:
+        # 其他维度，使用随机生成
+        actions = torch.randn(num_envs, action_dim, device=device)
+    
+    return actions
+
+
 def test_step(server: RemoteIsaacLabServer, sender: RemoteSimSender, actions, return_obs: bool = True):
     """测试 step 流程"""
     
@@ -153,8 +183,8 @@ def main():
     parser.add_argument("--sim-host", default="10.8.0.4", help="仿真端地址（默认 10.8.0.4）")
     parser.add_argument("--sim-port", type=int, default=8445, help="仿真端端口（默认 8446）")
     parser.add_argument("--handshake-token", default="123", help="握手数据（需与仿真端一致）")
-    parser.add_argument("--num-envs", type=int, default=1, help="环境数量（默认 8）")
-    parser.add_argument("--action-dim", type=int, default=7, help="动作维度（默认 7）")
+    parser.add_argument("--num-envs", type=int, default=8, help="环境数量（默认 8）")
+    parser.add_argument("--action-dim", type=int, default=14, help="动作维度（默认 7）")
     parser.add_argument("--test-steps", type=int, default=1000, help="测试步数（默认 1000，0 表示无限循环）")
     parser.add_argument("--obs-interval", type=int, default=5, help="每隔几步返回一次完整观测（默认 5）")
     parser.add_argument("--device", default="cuda", help="设备（默认 cuda）")
@@ -242,14 +272,8 @@ def main():
             
             print(f"\n--- {step_label} ---")
             
-            # 生成随机动作
-            actions = torch.randn(args.num_envs, args.action_dim).to(args.device)
-            # fixed_action = [0, 0, 0, 1.5, 1.5, 1, 0]
-            # actions = torch.tensor([actions] * args.num_envs, dtype=torch.float32).to(args.device)
-            # print(f"[训练端] actions: {actions}")
-            
-            # 每隔 obs_interval 步返回一次完整观测
-            # 例如 obs_interval=5: 第5, 10, 15...步返回完整观测
+            # 生成符合要求的动作
+            actions = generate_actions(args.num_envs, args.action_dim, args.device)
             return_obs = ((step_idx + 1) % args.obs_interval == 0)
             
             step_start = time.perf_counter()

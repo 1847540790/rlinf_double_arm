@@ -26,7 +26,7 @@ from typing import Any
 
 import requests
 import torch
-
+import sys
 
 class RemoteSimSender:
     """向仿真端（receiver）发送控制指令的简易 HTTP 客户端。"""
@@ -56,9 +56,9 @@ class RemoteSimSender:
             resp = requests.post(url, json=payload or {}, timeout=self.timeout)
             resp.raise_for_status()
             # 仅记录状态，不阻塞等待结果
-            print(
-                f"[RemoteSimSender] reset 请求已发送，status={resp.status_code}, url={url}"
-            )
+            print(f"[RemoteSimSender] reset 请求已发送，status={resp.status_code}, url={url}",file=sys.stderr,flush=True)
+            sys.stderr.flush()
+
         except Exception as e:
             print(f"[RemoteSimSender] reset 请求发送失败: {e}, url={url}")
 
