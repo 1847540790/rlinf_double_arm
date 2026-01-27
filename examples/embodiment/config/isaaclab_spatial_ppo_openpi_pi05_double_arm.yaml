@@ -44,19 +44,16 @@ runner:
   resume_dir: null
 
 algorithm:
-  auto_reset: False
-  ignore_terminations: False
-  use_fixed_reset_state_ids: True
+  # auto_reset: False
+  # ignore_terminations: False
   normalize_advantages: True
   kl_penalty: kl  # how to estimate kl divergence: kl or kl_penalty
   group_size: 1
-  max_episode_steps: 240
-  use_ordered_reset_state_ids: False
   reward_coef: 1.0
-  n_chunk_steps: 5
-  n_eval_chunk_steps: 5
+  
   num_group_envs: 16 #64
   rollout_epoch: 32 #8
+  
   reward_type: chunk_level
   logprob_type: chunk_level
   entropy_type: token_level
@@ -116,14 +113,14 @@ env:
     # batch=N but task_descriptions length=1, causing prompt index errors).
     # Keep it consistent with algorithm.num_group_envs used by this experiment.
     total_num_envs: ${algorithm.num_group_envs}
-    max_episode_steps: 100
-    max_steps_per_rollout_epoch: 240
+    max_episode_steps: 40
+    max_steps_per_rollout_epoch: 40
     use_fixed_reset_state_ids: True
 
   eval:
     total_num_envs: 1
-    max_episode_steps: 100
-    max_steps_per_rollout_epoch: 240
+    max_episode_steps: 40
+    max_steps_per_rollout_epoch: 40
     auto_reset: True
     ignore_terminations: True
     use_fixed_reset_state_ids: True
@@ -165,14 +162,13 @@ actor:
   model:
     model_name: "openpi"
     precision: null
-    num_action_chunks: 5
+    num_action_chunks: 5 #这个才是action_steps,一个chunk多少steps
     action_dim: 14
     is_lora: False
     lora_rank: 32
     gradient_checkpointing: False
     use_wrist_image: True
     use_proprio: True
-    num_steps: 3
     sharding_strategy: "no_shard"
     add_value_head: True
     # openpi specific parameters
@@ -183,8 +179,8 @@ actor:
       pi05: True
       num_images_in_input: 2
       noise_level: 0.5
-      action_chunk: 5
-      num_steps: ${actor.model.num_steps}
+      action_chunk: 5 #截取模型输出前多少个steps
+      num_steps: 5 #去噪步数
       train_expert_only: True
       action_env_dim: ${actor.model.action_dim}
       noise_method: "flow_sde"

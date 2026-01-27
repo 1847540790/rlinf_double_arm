@@ -314,7 +314,7 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
         # wrist image observation
         if env_obs.get("wrist_images") is not None:
             processed_obs["observation/wrist_image"] = env_obs["wrist_images"]
-        print(f"[DEBUG] obs_processor: processed_obs keys={list(processed_obs.keys())}")
+        # print(f"[DEBUG] obs_processor: processed_obs keys={list(processed_obs.keys())}")
         return processed_obs
 
     def precision_processor(self, processed_obs):
@@ -361,6 +361,7 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
             "tokenized_prompt": processed_obs["tokenized_prompt"],
             "tokenized_prompt_mask": processed_obs["tokenized_prompt_mask"],
         }
+
         forward_inputs.update(to_process_obs)
         forward_inputs.pop("prompt", None)
         result = {
