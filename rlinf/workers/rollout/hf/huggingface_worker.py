@@ -184,7 +184,7 @@ class MultiStepRolloutWorker(Worker):
             self.cfg.env.train.max_steps_per_rollout_epoch
             // self.cfg.actor.model.num_action_chunks
         )
-
+        print("n_chunk_steps:",n_chunk_steps)
         for _ in tqdm(
             range(self.cfg.algorithm.rollout_epoch),
             desc="Generating Rollout Epochs",

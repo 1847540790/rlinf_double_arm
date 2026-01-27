@@ -15,7 +15,13 @@ hydra:
 cluster:
   num_nodes: 1
   component_placement:
-    actor,env,rollout: 0 #4-7 #all
+    actor:
+      placement: 0-3:0-0
+    rollout:
+      placement: 4-4:0-0
+    env:
+      node_group: node
+      placement: 0-0
 
 runner:
   task_type: embodied
@@ -49,8 +55,8 @@ algorithm:
   reward_coef: 1.0
   n_chunk_steps: 5
   n_eval_chunk_steps: 5
-  num_group_envs: 8 #64
-  rollout_epoch: 64 #8
+  num_group_envs: 16 #64
+  rollout_epoch: 32 #8
   reward_type: chunk_level
   logprob_type: chunk_level
   entropy_type: token_level
@@ -151,8 +157,8 @@ actor:
   training_backend: "fsdp"
   checkpoint_load_path: "/workspace/rlinf/model/pi05_sort_tubes_1124"
   checkpoint_save_path: "../results"
-  micro_batch_size: 8 #128
-  global_batch_size: 192 #2048 # maximum : global batch size = micro batch size * actor num_processes.
+  micro_batch_size: 128 #128
+  global_batch_size: 2048 #2048 # maximum : global batch size = micro batch size * actor num_processes.
   seed: 42
   enable_offload: False
 

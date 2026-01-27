@@ -199,7 +199,8 @@ class RemoteIsaacLabServer:
                 print(
                     f"[RemoteIsaacLabServer] [step] 收到仿真端发送的 step 数据（第 {self.step_count} 个 step），"
                     f"类型={type(step_result)}, 编码大小={encoded_size}{extra_info}"
-                )
+                , end='\r', flush=True, file=sys.stderr)
+                sys.stderr.flush()
 
                 # 仅将结果数据放入队列，供训练代码获取；不再处理/记录 action
                 self.step_result_queue.put(step_result)
@@ -411,7 +412,8 @@ class RemoteIsaacLabServer:
     def wait_for_step_result(self, timeout=None):
         """等待仿真端发送 step 结果数据"""
         import time
-        print(f"[RemoteIsaacLabServer] 训练代码等待第 {self.step_count + 1} 个 step 结果数据...")
+        print(f"[RemoteIsaacLabServer] 训练代码等待第 {self.step_count + 1} 个 step 结果数据...", end='\r', flush=True, file=sys.stderr)
+        sys.stderr.flush()
         start_time = time.time()
         last_reminder_time = start_time
         reminder_interval = 10.0
@@ -423,7 +425,8 @@ class RemoteIsaacLabServer:
                     result = self.step_result_queue.get()
                     self.step_result_event.clear()
                     elapsed = float(time.time() - start_time)
-                    print(f"[RemoteIsaacLabServer] ✓ 收到 第 {self.step_count + 1} 个 step 结果数据，已等待 {elapsed} 秒")
+                    print(f"[RemoteIsaacLabServer] ✓ 收到 第 {self.step_count + 1} 个 step 结果数据，已等待 {elapsed} 秒", end='\r', flush=True, file=sys.stderr)
+                    sys.stderr.flush()
                     return result
                 else:
                     # 事件被设置但队列为空，清空事件继续等待

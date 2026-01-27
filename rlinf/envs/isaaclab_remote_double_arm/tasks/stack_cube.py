@@ -80,11 +80,11 @@ class RemoteIsaaclabStackCubeEnv(RemoteIsaaclabBaseEnv):
             "right_wrist_images": right_wrist_image,  # [num_envs, 3, 224, 224] - 使用复数形式以匹配 obs_processor 检测
             "task_descriptions": instruction,  # List[str] of length num_envs
         }
-        print(env_obs.keys())
-        print(env_obs["states"].shape)
-        print(env_obs["left_wrist_images"].shape)
-        print(env_obs["right_wrist_images"].shape)
-        print(f"task_descriptions: {len(env_obs['task_descriptions'])} items, first: {env_obs['task_descriptions'][0] if env_obs['task_descriptions'] else 'empty'}")
+        # print(env_obs.keys())
+        # print(env_obs["states"].shape)
+        # print(env_obs["left_wrist_images"].shape)
+        # print(env_obs["right_wrist_images"].shape)
+        # print(f"task_descriptions: {len(env_obs['task_descriptions'])} items, first: {env_obs['task_descriptions'][0] if env_obs['task_descriptions'] else 'empty'}")
         return env_obs
 
 
