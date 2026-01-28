@@ -192,11 +192,8 @@ class RemoteIsaaclabBaseEnv(gym.Env):
         if result is None:
             raise RuntimeError("未收到仿真端的 reset 结果数据")
 
-        if isinstance(result, Exception):
-            raise result
-
         # 从仿真端接收的数据
-        obs, info = result
+        obs, infos = result
 
         # 将结果返回给仿真端（确认收到）
         self.server.put_reset_result_ack()
@@ -229,17 +226,6 @@ class RemoteIsaaclabBaseEnv(gym.Env):
 
         if self.server is None:
             raise RuntimeError("服务器未初始化")
-
-        # 打印 action 信息用于调试（仅在需要观测时打印，减少日志）
-        # if return_obs:
-        #     print(f"[RemoteIsaaclabEnv] [step] action type: {type(actions)}")
-        #     if isinstance(actions, torch.Tensor):
-        #         print(f"[RemoteIsaaclabEnv] [step] action shape: {actions.shape}, dtype: {actions.dtype}")
-        #         print(f"[RemoteIsaaclabEnv] [step] action min: {actions.min()}, max: {actions.max()}")
-        #     elif hasattr(actions, 'shape'):
-        #         print(f"[RemoteIsaaclabEnv] [step] action shape: {actions.shape}")
-        #     else:
-        #         print(f"[RemoteIsaaclabEnv] [step] action: {actions}")
 
         # 训练端主动发送动作到仿真端，并记录时间
         send_ts = time.perf_counter()

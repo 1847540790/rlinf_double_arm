@@ -294,7 +294,7 @@ class OpenPi0ForRLActionPrediction(PI0Pytorch):
 
             if 'prompt' in processed_obs:
                 v = processed_obs['prompt']
-                print(f"[DEBUG] obs_processor: prompt type={type(v)}, shape={getattr(v, 'shape', 'N/A')}, value={v}")
+                # print(f"[DEBUG] obs_processor: prompt type={type(v)}, shape={getattr(v, 'shape', 'N/A')}, value={v}")
 
             return processed_obs
 

@@ -37,7 +37,7 @@ runner:
   only_eval: False
   eval_policy_path: null
   val_check_interval: -1
-  save_interval: 40
+  save_interval: 20
   seq_length: 4096
   max_prompt_length: 50
 
