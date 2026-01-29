@@ -21,6 +21,7 @@ python train_test.py \
 参数说明：
   --test-steps: 测试步数，0 表示无限循环（默认 1000）
   --obs-interval: 每隔几步返回一次完整观测（默认 5）
+  --reset-interval: 每隔几步发送一次reset指令（默认 40，0 表示不自动reset）
 """
 
 import argparse
@@ -113,6 +114,91 @@ def generate_actions(num_envs: int, action_dim: int, device: str = "cuda"):
     return actions
 
 
+class ModifyActionGenerator:
+    """修改动作生成器，基于默认值递增 xyz 坐标"""
+    def __init__(self, default_action, increment=0.05, x_max_steps=10):
+        """
+        Args:
+            default_action: 默认动作值（14维列表或tensor）
+            increment: 每次递增的步长（默认 0.05）
+            x_max_steps: x 坐标递增的最大次数（默认 10）
+        """
+        self.default_action = torch.tensor(default_action, dtype=torch.float32)
+        self.increment = increment
+        self.x_max_steps = x_max_steps
+        self.call_count = 0
+        
+    def __call__(self, num_envs: int, device: str = "cuda"):
+        """生成修改后的动作
+        
+        Args:
+            num_envs: 环境数量
+            device: 设备（默认 "cuda"）
+        
+        Returns:
+            actions: 形状为 (num_envs, 14) 的动作tensor
+        """
+        # 复制默认动作到所有环境
+        actions = self.default_action.clone().unsqueeze(0).repeat(num_envs, 1)
+        actions = actions.to(device)
+        
+        # 根据调用次数修改第一个手臂的 xyz
+        if self.call_count < self.x_max_steps:
+            # 前 x_max_steps 次：递增 x
+            actions[:, 0] += self.call_count * self.increment
+        elif self.call_count < self.x_max_steps + 1:
+            # 第 x_max_steps+1 次：开始递增 y
+            actions[:, 0] += self.x_max_steps * self.increment
+            actions[:, 1] += (self.call_count - self.x_max_steps) * self.increment
+        else:
+            # 之后：递增 z
+            actions[:, 0] += self.x_max_steps * self.increment
+            actions[:, 1] += self.increment
+            actions[:, 2] += (self.call_count - self.x_max_steps - 1) * self.increment
+        
+        self.call_count += 1
+        return actions
+
+
+def modify_generate_action(num_envs: int, device: str = "cuda"):
+    """生成修改后的动作，基于默认值递增 xyz 坐标
+    
+    默认动作值：
+    [0.63998544, 0.21713364, 0.20203939, -1.32134895, 0.53650032, 0.29955657, 1.0,
+     0.61666965, -0.26982883, 0.15743294, 1.29904443, 0.37680594, -0.22726699, 1.0]
+    
+    递增规则：
+    - 前10次：x += 0.05 * 调用次数
+    - 第11次：x += 0.5 (10*0.05), y += 0.05
+    - 之后：x += 0.5, y += 0.05, z += 0.05 * (调用次数 - 11)
+    
+    Args:
+        num_envs: 环境数量
+        device: 设备（默认 "cuda"）
+    
+    Returns:
+        actions: 形状为 (num_envs, 14) 的动作tensor
+    """
+    default_action = [
+        0.63998544, 0.21713364, 0.20203939,
+        -1.32134895, 0.53650032, 0.29955657,
+        1.0,
+        0.61666965, -0.26982883, 0.15743294,
+        1.29904443, 0.37680594, -0.22726699,
+        1.0,
+    ]
+    
+    # 使用类实例来维护状态（单例模式）
+    if not hasattr(modify_generate_action, '_generator'):
+        modify_generate_action._generator = ModifyActionGenerator(
+            default_action=default_action,
+            increment=0.05,
+            x_max_steps=10
+        )
+    
+    return modify_generate_action._generator(num_envs, device)
+
+
 def test_step(server: RemoteIsaacLabServer, sender: RemoteSimSender, actions, return_obs: bool = True):
     """测试 step 流程"""
     
@@ -187,6 +273,7 @@ def main():
     parser.add_argument("--action-dim", type=int, default=14, help="动作维度（默认 7）")
     parser.add_argument("--test-steps", type=int, default=10000, help="测试步数（默认 1000，0 表示无限循环）")
     parser.add_argument("--obs-interval", type=int, default=5, help="每隔几步返回一次完整观测（默认 5）")
+    parser.add_argument("--reset-interval", type=int, default=40, help="每隔几步发送一次reset指令（默认 40，0 表示不自动reset）")
     parser.add_argument("--device", default="cuda", help="设备（默认 cuda）")
     parser.add_argument("--skip-reset", action="store_true", help="跳过 reset 测试")
     parser.add_argument("--skip-step", action="store_true", help="跳过 step 测试")
@@ -203,6 +290,7 @@ def main():
     print(f"动作维度: {args.action_dim}")
     print(f"测试步数: {args.test_steps if args.test_steps > 0 else '无限循环'}")
     print(f"观测间隔: 每 {args.obs_interval} 步返回一次完整观测")
+    print(f"Reset间隔: 每 {args.reset_interval} 步发送一次reset指令" if args.reset_interval > 0 else "Reset间隔: 不自动reset")
     print(f"设备: {args.device}")
     print("=" * 60)
     
@@ -271,6 +359,16 @@ def main():
                 step_label = f"Step {step_idx + 1}"
             
             print(f"\n--- {step_label} ---")
+            
+            # 检查是否需要发送reset指令（每reset_interval步发送一次，但不包括初始reset）
+            if args.reset_interval > 0 and step_idx > 0 and step_idx % args.reset_interval == 0:
+                print(f"\n[测试] 达到reset间隔（每{args.reset_interval}步），发送reset指令...")
+                reset_success = test_reset(server, sender, seed=42, env_ids=None)
+                if not reset_success:
+                    print(f"[测试] ✗ 自动reset失败，停止测试")
+                    break
+                print(f"[测试] ✓ 自动reset成功，继续step测试")
+                time.sleep(0.5)  # reset后短暂延迟
             
             # 生成符合要求的动作
             actions = generate_actions(args.num_envs, args.action_dim, args.device)

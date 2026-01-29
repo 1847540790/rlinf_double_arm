@@ -16,9 +16,9 @@ cluster:
   num_nodes: 1
   component_placement:
     actor:
-      placement: 0-3:0-0
+      placement: 1-4:0-0
     rollout:
-      placement: 4-4:0-0
+      placement: 5-5:0-0
     env:
       node_group: node
       placement: 0-0
@@ -37,7 +37,7 @@ runner:
   only_eval: False
   eval_policy_path: null
   val_check_interval: -1
-  save_interval: 20
+  save_interval: 100
   seq_length: 4096
   max_prompt_length: 50
 

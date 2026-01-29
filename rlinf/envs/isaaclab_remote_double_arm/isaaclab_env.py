@@ -170,7 +170,8 @@ class RemoteIsaaclabBaseEnv(gym.Env):
         env_ids: Optional[torch.Tensor] = None,
     ):
         """重置环境：训练端主动通知仿真端，并等待结果数据返回"""
-        print(f"[RemoteIsaaclabEnv] [reset] 训练端发送 reset 请求到仿真端...")
+        print(f"[RemoteIsaaclabEnv] [reset] 训练端发送 reset 请求到仿真端...", end='\r', flush=True, file=sys.stderr)
+        sys.stderr.flush()
 
         if self.server is None:
             raise RuntimeError("服务器未初始化")
@@ -186,7 +187,8 @@ class RemoteIsaaclabBaseEnv(gym.Env):
         self.sim_sender.send_reset(payload)
 
         # 等待仿真端发送 reset 结果数据
-        print(f"[RemoteIsaaclabEnv] [reset] 等待仿真端发送 reset 结果数据...")
+        print(f"[RemoteIsaaclabEnv] [reset] 等待仿真端发送 reset 结果数据...", end='\r', flush=True, file=sys.stderr)
+        sys.stderr.flush()
         result = self.server.wait_for_reset_result()
 
         if result is None:
@@ -245,8 +247,10 @@ class RemoteIsaaclabBaseEnv(gym.Env):
         if return_obs:
             print(
                 f"[RemoteIsaaclabEnv] [step] 收到仿真端数据，step 完成，"
-                f"总耗时 {total_elapsed:.3f}s，等待结果 {wait_elapsed:.3f}s"
+                f"总耗时 {total_elapsed:.3f}s，等待结果 {wait_elapsed:.3f}s",
+                end='\r', flush=True, file=sys.stderr
             )
+            sys.stderr.flush()
 
         # 优化：如果不需要观测，跳过观测处理（虽然数据已传输，但至少减少处理开销）
         if return_obs:
